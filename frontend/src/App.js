@@ -16,8 +16,8 @@ function App() {
   const [showMap, setShowMap] = useState(true);
   const [currentTab, setCurrentTab] = useState('search');
 
-  const API_BASE = 'http://localhost:8000';
-  const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+  // GOOD (Only declared once)
+  const API_BASE = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     const fetchLocations = async () => {
