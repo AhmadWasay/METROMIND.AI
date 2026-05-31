@@ -24,7 +24,7 @@ function App() {
       try {
         const response = await axios.get(`${API_BASE}/api/locations`);
         const locs = response.data.locations || [];
-        setLocations(locs);
+        setLocations(locs); 
 
         // Ensure default source/destination are valid selectable codes
         if (locs.length > 0) {
