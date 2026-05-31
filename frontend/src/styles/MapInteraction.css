@@ -1,0 +1,52 @@
+.select-wrapper {
+  position: relative;
+  display: flex;
+  width: 100%;
+}
+
+.search-input {
+  padding-right: 45px !important; /* Make space for the button */
+}
+
+.map-select-btn {
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.5em;
+  padding: 0 5px;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+  z-index: 3;
+}
+
+.map-select-btn:hover {
+  opacity: 1;
+}
+
+.selection-prompt {
+  background-color: #eef2ff;
+  border: 1px solid #667eea;
+  color: #434190;
+  padding: 15px;
+  margin: 15px 0;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 500;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+}
+
+.selection-prompt button {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
