@@ -1,0 +1,28 @@
+name: Docker Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Build backend Docker image
+        run: docker build -t metromind-backend ./backend
+
+      - name: Build frontend Docker image
+        run: docker build -t metromind-frontend ./frontend
+
+      - name: Build Docker Compose services
+        run: docker compose -f docker-compose.yml build
