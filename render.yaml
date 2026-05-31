@@ -1,0 +1,21 @@
+services:
+  - type: web_service
+    name: metromind-backend
+    env: python
+    branch: main
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && python main.py
+    autoDeploy: true
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: 1
+
+  - type: static_site
+    name: metromind-frontend
+    branch: main
+    buildCommand: cd frontend && npm install && npm run build
+    publishPath: frontend/build
+    autoDeploy: true
+    envVars:
+      - key: REACT_APP_API_URL
+        value: https://metromind-backend.onrender.com
