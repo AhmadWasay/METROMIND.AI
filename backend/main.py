@@ -301,12 +301,9 @@ def login():
         return jsonify({"error": str(e)}), 400
 
 if __name__ == "__main__":
-<<<<<<< HEAD
     print("Starting MetroMind API on http://0.0.0.0:8000")
     app.run(host="0.0.0.0", port=8000, debug=True)
-=======
     import os
     port = int(os.environ.get("PORT", 8000))
     print(f"Starting MetroMind API on http://0.0.0.0:{port}")
     app.run(host="0.0.0.0", port=port, debug=False)
->>>>>>> temp-branch
