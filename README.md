@@ -1,6 +1,5 @@
 # 🚇 MetroMind AI - Intelligent Transit & Logistics Broker
 
-<<<<<<< HEAD
 A web-based AI-powered routing system for urban commuting across Islamabad/Rawalpindi's metro and bus network. The platform uses sophisticated pathfinding algorithms to calculate optimal routes, manage capacity inventory like an e-commerce system, and provide real-time trip tracking.
 
 ## 🎯 Project Vision
@@ -43,7 +42,6 @@ Instead of a traditional e-commerce store, MetroMind "sells" optimized digital i
 - Station search & nearby stops discovery
 - Travel history and favorite routes
 - Multi-language support ready
-=======
 A web-based AI-powered routing system for Islamabad/Rawalpindi transit. The platform calculates optimal routes across metro and feeder bus lines, then presents itinerary packages and booking-style trip management.
 
 ## 🎯 Project Vision
@@ -60,7 +58,6 @@ MetroMind AI solves the commuting puzzle by combining:
 - Metro and bus station lookup
 - Searchable origin/destination selection
 - Booking, cancellation, and rating endpoints
->>>>>>> temp-branch
 
 ## 🏗️ Architecture
 
@@ -71,11 +68,8 @@ MetroMind AI solves the commuting puzzle by combining:
 └────────────────────┬────────────────────────────────────────┘
                      │ HTTP/REST API
 ┌────────────────────▼────────────────────────────────────────┐
-<<<<<<< HEAD
 │                   FastAPI Backend                           │
-=======
 │                      Flask Backend                          │
->>>>>>> temp-branch
 │  (GraphEngine, TransitData, RouteOptimization)              │
 └────────────────────┬────────────────────────────────────────┘
                      │
@@ -106,20 +100,17 @@ venv\Scripts\activate  # Windows
 # Install dependencies
 pip install -r requirements.txt
 
-<<<<<<< HEAD
 # Start FastAPI server
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 **Backend runs at:** `http://localhost:8000`
 **API Docs:** `http://localhost:8000/docs` (Swagger UI)
-=======
 # Start Flask server
 python main.py
 ```
 
 **Backend runs at:** `http://localhost:8000`
->>>>>>> temp-branch
 
 ### 2️⃣ Frontend Setup
 
@@ -143,8 +134,6 @@ Open your browser and navigate to:
 http://localhost:3000
 ```
 
-<<<<<<< HEAD
-=======
 ## 🚢 Hosting the App
 
 This project is ready for cloud deployment.
@@ -180,7 +169,6 @@ Use the existing `Dockerfile`s and `docker-compose.yml` to deploy on platforms l
 
 If you want, I can also create a Render step-by-step deployment guide for this repo and verify the final service URLs.
 
->>>>>>> temp-branch
 ## 📡 API Endpoints
 
 ### Route Calculation
@@ -420,7 +408,4 @@ This project is created for educational purposes as part of a Web Engineering se
 ---
 
 **🚇 Safe travels with MetroMind AI! 🚇**
-<<<<<<< HEAD
-=======
 >>>>>>> a996911 (Initial Commit)
->>>>>>> temp-branch
