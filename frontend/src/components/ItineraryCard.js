@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import '../styles/ItineraryCard.css';
 
-function ItineraryCard({ itineraryPackage, isPrimary, loading }) {
+function ItineraryCard({ itineraryPackage, isPrimary, loading, onBook, showBookButton }) {
   const [showDetails, setShowDetails] = useState(isPrimary);
 
   return (
@@ -117,6 +117,16 @@ function ItineraryCard({ itineraryPackage, isPrimary, loading }) {
         >
           {showDetails ? '▼ Hide Details' : '▶ Show Details'}
         </button>
+
+        {showBookButton && (
+          <button 
+            className="book-trip-btn"
+            onClick={onBook}
+            disabled={loading}
+          >
+            {loading ? '⏳ Booking...' : '🎫 Book This Trip'}
+          </button>
+        )}
       </div>
 
       {/* The booking feature has been disabled to focus on the trip planning functionality. */}

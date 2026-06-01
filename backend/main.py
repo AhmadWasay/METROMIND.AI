@@ -5,12 +5,26 @@ from graph_engine import TransitGraph
 from transit_data import METRO_STATIONS, ALL_STOPS, BUS_ROUTES, BUS_STOPS
 from datetime import datetime
 import random
+from models import init_db, init_transit_capacity
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=['*'], supports_credentials=True)
+
+# Initialize database
+try:
+    init_db()
+    init_transit_capacity()
+except Exception as e:
+    print(f"Database initialization: {e}")
 
 # Initialize transit engine
 transit_engine = TransitGraph()
+
+# Import extended API endpoints
+try:
+    from api_extended import *
+except Exception as e:
+    print(f"Warning: Extended API not available: {e}")
 
 # ============= API ENDPOINTS =============
 
@@ -301,9 +315,8 @@ def login():
         return jsonify({"error": str(e)}), 400
 
 if __name__ == "__main__":
-    print("Starting MetroMind API on http://0.0.0.0:8000")
-    app.run(host="0.0.0.0", port=8000, debug=True)
     import os
-    port = int(os.environ.get("PORT", 8000))
-    print(f"Starting MetroMind API on http://0.0.0.0:{port}")
-    app.run(host="0.0.0.0", port=port, debug=False)
+    port = int(os.environ.get("PORT", 5000))
+    print(f"🚀 Starting MetroMind API on http://localhost:{port}")
+    print("📚 API Documentation: http://localhost:{port}/")
+    app.run(host="0.0.0.0", port=port, debug=False, threaded=True)
