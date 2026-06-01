@@ -266,8 +266,8 @@ def get_user_travel_history(user_id):
         "total_trips": 24,
         "favorite_routes": [
             {
-                "source": "Red_Sector_G7",
-                "destination": "Red_PIMS",
+                "source": "RED_Saddar",
+                "destination": "RED_PIMS",
                 "times_used": 12,
             }
         ]
@@ -279,9 +279,9 @@ def get_delays_report():
     return jsonify({
         "report_date": datetime.now().isoformat(),
         "stations_with_delays": [
-            {"station": "Red_PIMS", "avg_delay": 3.2, "reason": "High traffic"},
-            {"station": "Green_Sector_G11", "avg_delay": 2.8, "reason": "Signal maintenance"},
-            {"station": "Blue_Sector_B17", "avg_delay": 1.5, "reason": "Minimal"},
+            {"station": "RED_PIMS", "avg_delay": 3.2, "reason": "High traffic"},
+            {"station": "ORG_G10", "avg_delay": 2.8, "reason": "Signal maintenance"},
+            {"station": "BLU_Gulberg", "avg_delay": 1.5, "reason": "Minimal"},
         ],
         "recommendation": "Increase Blue Line frequency during peak hours"
     })

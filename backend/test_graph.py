@@ -43,7 +43,7 @@ def distance(a, b):
         math.sin(math.radians(lng2 - lng1) / 2) ** 2
     ))
 
-for code in ['RM_Main', 'GL_E11', 'GL_HighCourt', 'BL_Aabpara', 'BL_PindiPoint']:
+for code in ['RED_PIMS', 'ORG_NUST', 'BLU_Gulberg', 'GRN_Jillani', 'RED_Saddar']:
     item = next((x for x in METRO_STATIONS if x['code'] == code), None)
     if not item:
         continue
@@ -54,6 +54,6 @@ for code in ['RM_Main', 'GL_E11', 'GL_HighCourt', 'BL_Aabpara', 'BL_PindiPoint']
         if dist < 2.5:
             print(f'  {stop["code"]} {stop["name"]}: {dist:.2f} km')
 
-print('\nRoute planning test: RM_Main -> GL_E11')
-route_result = transit_engine.find_shortest_path('RM_Main', 'GL_E11', optimization='time')
+print('\nRoute planning test: RED_Saddar -> ORG_NUST')
+route_result = transit_engine.find_shortest_path('RED_Saddar', 'ORG_NUST', optimization='time')
 print(route_result)
