@@ -102,6 +102,9 @@ def get_all_locations():
                     # Skip unknown codes rather than creating placeholder entries
                     app.logger.warning(f"Skipped unknown route stop code in /api/locations: {code}")
     
+    # Sort locations alphabetically by name so they are easy to find in the frontend dropdown
+    locations.sort(key=lambda x: x['name'])
+
     return jsonify({
         "status": "success",
         "locations": locations,
@@ -173,7 +176,7 @@ def search_locations(query):
     return jsonify({
         "status": "success",
         "query": query,
-        "results": results[:10],
+        "results": results,
         "total": len(results)
     })
 

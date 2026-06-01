@@ -232,6 +232,7 @@ class TransitGraph:
             segments = []
             total_fare = 0
             metro_used = False
+            current_bus_route = None
             walking_details = []
             
             for i in range(len(path) - 1):
@@ -245,72 +246,53 @@ class TransitGraph:
                 distance = edge_data.get('distance', 0)
                 time = edge_data.get('weight', 0)
                 
-                # Check if we can collapse with the previous continuous segment
-                if segments and segments[-1].get('line') == edge_data.get('line') and segments[-1]['type'] != 'walk':
-                    segments[-1]['to'] = next_stop['name']
-                    segments[-1]['distance_km'] = round(segments[-1]['distance_km'] + distance, 2)
-                    segments[-1]['time_mins'] += int(time)
+                if edge_data['type'] == 'metro':
+                    line = edge_data['line']
+                    if not metro_used:
+                        # Metro fare: prefer line-specific fare, otherwise use BRT_Lines fallback
+                        total_fare += TIMETABLE.get(line, {}).get('fare', TIMETABLE.get('BRT_Lines', {}).get('fare', 50))
+                        metro_used = True
+                    current_bus_route = None
                     
-                    if 'intermediate_stops' not in segments[-1]:
-                        segments[-1]['intermediate_stops'] = []
-                    
-                    # Add the intermediate station we just passed through
-                    segments[-1]['intermediate_stops'].append(curr_stop['name'])
-                    
-                    stops_list = segments[-1]['intermediate_stops']
-                    base_desc = f"{segments[-1]['line']} Metro" if segments[-1]['type'] == 'metro' else f"Bus Route {segments[-1].get('route', '')}"
-                    
-                    # Show specific station names if it's a short hop, otherwise show total stop count
-                    if len(stops_list) <= 3:
-                        stops_str = ", ".join(stops_list)
-                        segments[-1]['description'] = f"{base_desc} (via {stops_str})"
-                    else:
-                        segments[-1]['description'] = f"{base_desc} ({len(stops_list)} stops)"
-                        
-                else:
-                    # Create a new segment branch
-                    if edge_data['type'] == 'metro':
-                        line = edge_data['line']
-                        if not metro_used:
-                            # Metro fare: prefer line-specific fare, otherwise use BRT_Lines fallback
-                            total_fare += TIMETABLE.get(line, {}).get('fare', TIMETABLE.get('BRT_Lines', {}).get('fare', 50))
-                            metro_used = True
-                        
-                        segments.append({
-                            'type': 'metro',
-                            'line': line,
-                            'from': curr_stop['name'],
-                            'to': next_stop['name'],
-                            'distance_km': round(distance, 2),
-                            'time_mins': int(time),
-                            'description': f'{line} Metro'
-                        })
-                    
-                    elif edge_data['type'] == 'bus':
-                        route = edge_data['route']
+                    segments.append({
+                        'type': 'metro',
+                        'line': line,
+                        'from': curr_stop['name'],
+                        'to': next_stop['name'],
+                        'distance_km': round(distance, 2),
+                        'time_mins': int(time),
+                        'description': f'{line} Metro'
+                    })
+                
+                elif edge_data['type'] == 'bus':
+                    route = edge_data['route']
+                    if current_bus_route != route:
                         fare = edge_data.get('fare', 25)
-                        segments.append({
-                            'type': 'bus',
-                            'route': route,
-                            'line': edge_data['line'],
-                            'from': curr_stop['name'],
-                            'to': next_stop['name'],
-                            'distance_km': round(distance, 2),
-                            'time_mins': int(time),
-                            'description': f'Bus Route {route}'
-                        })
-                        total_fare += fare  # Only charges once per continuous bus ride now!
+                        total_fare += fare
+                        current_bus_route = route
                     
-                    elif edge_data['type'] == 'walk':
-                        segments.append({
-                            'type': 'walk',
-                            'line': 'walk',
-                            'from': curr_stop['name'],
-                            'to': next_stop['name'],
-                            'distance_km': round(distance, 2),
-                            'time_mins': int(time),
-                            'description': 'Walk'
-                        })
+                    segments.append({
+                        'type': 'bus',
+                        'route': route,
+                        'line': edge_data['line'],
+                        'from': curr_stop['name'],
+                        'to': next_stop['name'],
+                        'distance_km': round(distance, 2),
+                        'time_mins': int(time),
+                        'description': f'Bus Route {route}'
+                    })
+                
+                elif edge_data['type'] == 'walk':
+                    current_bus_route = None
+                    segments.append({
+                        'type': 'walk',
+                        'line': 'walk',
+                        'from': curr_stop['name'],
+                        'to': next_stop['name'],
+                        'distance_km': round(distance, 2),
+                        'time_mins': int(time),
+                        'description': 'Walk'
+                    })
             
             # Total fare is metro flat fare + bus fares
             
@@ -343,6 +325,7 @@ class TransitGraph:
                     'lines_used': list({s['line'] for s in segments}),
                     'transfers': transfer_count,
                     'estimated_cost': total_fare,
+                    'total_fare': total_fare,
                     'estimated_time_minutes': int(total_time + walking_time),
                     'transit_time_mins': int(total_time),
                     'walking_time_mins': int(walking_time),
