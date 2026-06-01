@@ -23,7 +23,7 @@ function App() {
   const [currentPage, setCurrentPage] = useState('planner');
 
   // GOOD (Only declared once)
-  const API_BASE = process.env.REACT_APP_API_URL;
+  const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
   // Check authentication on mount
   useEffect(() => {
