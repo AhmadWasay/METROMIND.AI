@@ -53,7 +53,6 @@ METRO_STATIONS = [
 ]
 
 # ===== BUS STOPS (Feeder Route Nodes - Comprehensive Data) =====
-# Using representative coordinates derived from sector layouts for minor stops
 BUS_STOPS = [
     # Core Anchors
     {'code': 'FR_KhannaPul', 'name': 'Khanna Pul', 'type': 'bus', 'area': 'Islamabad Expressway', 'coordinates': {'lat': 33.626, 'lng': 73.111}},
@@ -329,6 +328,12 @@ BUS_STOPS = [
     {'code': 'FR_Sihala', 'name': 'Sihala', 'type': 'bus', 'area': 'Kahuta Road', 'coordinates': {'lat': 33.540, 'lng': 73.180}},
     {'code': 'FR_Her_Do_Gher', 'name': 'Her Do Gher', 'type': 'bus', 'area': 'Kahuta Road', 'coordinates': {'lat': 33.535, 'lng': 73.190}},
     {'code': 'FR_Aari_Syedan', 'name': 'Aari Syedan', 'type': 'bus', 'area': 'Kahuta Road', 'coordinates': {'lat': 33.530, 'lng': 73.200}},
+    
+    # Missing Route Extentions Appended Below
+    {'code': 'FR_Hassan_Abdal', 'name': 'Hassan Abdal', 'type': 'bus', 'area': 'Hassan Abdal', 'coordinates': {'lat': 33.862, 'lng': 72.638}},
+    {'code': 'FR_Mumtaz_City', 'name': 'Mumtaz City', 'type': 'bus', 'area': 'Srinagar Hwy', 'coordinates': {'lat': 33.570, 'lng': 72.855}},
+    {'code': 'FR_Afridi_Bagh', 'name': 'Afridi Bagh', 'type': 'bus', 'area': 'Fateh Jang Rd', 'coordinates': {'lat': 33.522, 'lng': 72.765}},
+    {'code': 'FR_Hattar', 'name': 'Hattar', 'type': 'bus', 'area': 'Fateh Jang Rd', 'coordinates': {'lat': 33.518, 'lng': 72.760}}
 ]
 
 # Combined list of all stops
@@ -340,19 +345,19 @@ BUS_ROUTES = [
     {
         'code': 'BRT_RED', 'name': 'Red Line: Saddar - Secretariat', 'operator': 'RMBS', 'type': 'brt',
         'stops': [
-            'Saddar', 'Marrir Chowk', 'Liaquat Bagh', 'Committe Chowk', 'Waris Khan', 
-            'Chandni Chowk', 'Rehmanabad', '6th Road', 'Shamsabad', 'Faizabad', 'IJP', 
-            'Potohar', 'Khayaban', 'Faiz Ahmad Faiz', 'Kashmir Highway', 'Chaman', 'Ibn-e-Sina', 
-            'Kachery', 'PIMS', 'Stock Exchange', '7th Avenue', 'Shaheed-e-Millat', 'Parade Ground', 
-            'Secretariat'
+            'RED_Saddar', 'RED_Marrir_Chowk', 'RED_Liaquat_Bagh', 'RED_Committe_Chowk', 'RED_Waris_Khan',
+            'RED_Chandni_Chowk', 'RED_Rehmanabad', 'RED_6th_Road', 'RED_Shamsabad', 'RED_Faizabad', 'RED_IJP',
+            'RED_Potohar', 'RED_Khayaban', 'RED_Faiz_Ahmad_Faiz', 'RED_Kashmir_Highway', 'RED_Chaman', 'RED_Ibn_e_Sina',
+            'RED_Kachery', 'RED_PIMS', 'RED_Stock_Exchange', 'RED_7th_Avenue', 'RED_Shaheed_e_Millat', 'RED_Parade_Ground',
+            'RED_Secretariat'
         ], 'fare': 30
     },
     {
         'code': 'BRT_ORANGE', 'name': 'Orange Line: Faiz Ahmad Faiz - Airport', 'operator': 'RMBS', 'type': 'brt',
         'stops': [
-            'Faiz Ahmad Faiz', 'NHA', 'High Court', 'Police Foundation', 'NUST', 'G-13', 
-            'Golra Morh', 'N-5', 'G-15', 'G-16', 'Masjid Abul Qasim', 'Top City Interchange', 
-            'Rakh Pind Ranjha', 'Islamabad Intenational Airport'
+            'RED_Faiz_Ahmad_Faiz', 'ORG_NHA', 'ORG_High_Court', 'ORG_Police_Foundation', 'ORG_NUST', 'ORG_G13',
+            'ORG_Golra_Morh', 'ORG_N5', 'ORG_G15', 'ORG_G16', 'ORG_Masjid_Abul_Qasim', 'ORG_Top_City_Interchange',
+            'ORG_Rakh_Pind_Ranjha', 'ORG_Islamabad_International_Airport'
         ], 'fare': 50
     },
     
@@ -360,188 +365,187 @@ BUS_ROUTES = [
     {
         'code': 'FR_1', 'name': 'FR-1: Khanna Pul - NUST Metro Station', 'operator': 'CDA', 'type': 'feeder',
         'stops': [
-            'Khanna Pul', 'Zia Masjid', 'Kuri Road', 'Iqbal Town', 'Dhoke Kala Khan', 'Sohan', 
-            'Faizabad Metro Station', 'I-8 Markaz West', 'Potohar Metro Station', 'MCI Model School', 
-            'CDA Complaint Center', 'OGTI Stop', 'Sui Gas Stop', 'PTCL I-10', 'IESCO I-10 Markaz', 
-            'Korang Road', 'Mandi Morh', 'Sabzi Mandi', 'Metro Cash and Carry', 'Islamabad Medical Complex', 
-            'PAEC General Hospital', 'Islamic International University', 'FAST University', 'Police Lines', 
-            'Police Foundation Metro Station', 'NUST Metro Station'
+            'FR_KhannaPul', 'FR_Zia_Masjid', 'FR_Kuri_Road', 'FR_Iqbal_Town', 'FR_Dhoke_Kala_Khan', 'FR_Sohan',
+            'RED_Faizabad', 'FR_I8_Markaz_West', 'RED_Potohar', 'FR_MCI_School',
+            'FR_CDA_Complaint', 'FR_OGTI', 'FR_Sui_Gas', 'FR_PTCL_I10', 'FR_IESCO_I10',
+            'FR_Korang_Road', 'FR_MandiMorh', 'FR_Sabzi_Mandi', 'FR_Metro_CC', 'FR_IMC',
+            'FR_PAEC', 'FR_IIUI', 'FR_FAST', 'FR_Police_Lines',
+            'ORG_Police_Foundation', 'ORG_NUST'
         ], 'fare': 50
     },
     {
         'code': 'FR_2', 'name': 'FR-2: PIMS Gate - Faizabad (Suspended)', 'operator': 'CDA', 'type': 'feeder',
         'stops': [
-            'PIMS Gate', 'Rescue 15', 'TNT Stop', 'PTCL HQ', 'Sarya Chowk', 'Kashmir Highway Metro Station', 
-            'Chaman Metro Station', 'Taqwa Market', 'G-9/4 Park', 'Karachi Company', 'Faiz Ahmad Faiz', 
-            'Khayaban-e-Johar', 'Shifa International Hospital', 'FBISE', 'Sahibza Abdul Qayuum Road', 
-            'Sangam Market', 'I-8 Markaz East', 'Faizabad'
+            'RED_PIMS', 'FR_Rescue_15', 'FR_TNT', 'FR_PTCL_HQ', 'FR_Sarya_Chowk', 'RED_Kashmir_Highway',
+            'RED_Chaman', 'FR_Taqwa_Market', 'FR_G9_4_Park', 'FR_Karachi_Company', 'RED_Faiz_Ahmad_Faiz',
+            'RED_Khayaban', 'FR_Shifa', 'FR_FBISE', 'FR_Sahibza_Road',
+            'FR_Sangam_Market', 'FR_I8_East', 'RED_Faizabad'
         ], 'fare': 50
     },
     {
         'code': 'FR_3A', 'name': 'FR-3A: PIMS Gate - Saidpur/Faisal Masjid', 'operator': 'CDA', 'type': 'feeder',
         'stops': [
-            'PIMS Gate', 'PIMS Metro Station', 'F-8 Katchery', 'F-8 Markaz', 'Ravi Gate F-9', 
-            'Shaheen Chowk', 'Bahria University', 'Naval Complex', 'Faisal Masjid', 'Parveen Shakir Road', 
-            'Kohsar Road', 'Zoo', 'F-6/2', 'Saidpur Village'
+            'RED_PIMS', 'FR_F8_Katchery', 'FR_F8_Markaz', 'FR_F9_Ravi_Gate',
+            'FR_Shaheen_Chowk', 'FR_Bahria_Univ', 'FR_Naval_Complex', 'FR_Faisal_Masjid', 'FR_Parveen_Shakir',
+            'FR_Kohsar', 'FR_Zoo', 'FR_F6_2', 'FR_Saidpur'
         ], 'fare': 50
     },
     {
         'code': 'FR_4', 'name': 'FR-4: PIMS Gate - Bari Imam', 'operator': 'CDA', 'type': 'feeder',
         'stops': [
-            'PIMS Gate', 'Children Hospital', 'Rescue 15', 'Bank Colony', 'Salai Centre', 
-            'Sitara Market', 'Pully Stop', 'Iqbal Hall', 'G-6/1,2', 'Melody Market', 
-            'Aabpara Market', 'Youth Hostel', 'Metropolitan Corporation', 'ICB College', 
-            'NADRA Chowk', 'Lodges Park', 'Sukh Chayn Park', 'Ministry of Foreign Affairs', 
-            'Radio Pakistan', 'National Library', 'Secretariate Police Station', 
-            'Diplomatic Enclave Gate 4', 'Aiwan e Sadar Colony', 'Muslim Colony', 'Bari Imam'
+            'RED_PIMS', 'FR_Childrens_Hospital', 'FR_Rescue_15', 'FR_Bank_Colony', 'FR_Salai_Centre',
+            'FR_Sitara_Market', 'FR_Pully_Stop', 'FR_Iqbal_Hall', 'FR_G6_1_2', 'FR_Melody',
+            'FR_Aabpara', 'FR_Youth_Hostel', 'FR_MCI', 'FR_ICB',
+            'FR_NADRA_Chowk', 'FR_Lodges', 'FR_Sukh_Chayn', 'FR_MOFA',
+            'FR_Radio_Pak', 'FR_Nat_Library', 'FR_Sec_Police',
+            'FR_Diplomatic_Enclave', 'FR_Aiwan_e_Sadar', 'FR_Muslim_Colony', 'FR_BariImam'
         ], 'fare': 50
     },
     {
         'code': 'FR_4A', 'name': 'FR-4A: Bari Imam - Quaid-e-Azam University', 'operator': 'CDA', 'type': 'feeder',
         'stops': [
-            'Bari Imam', 'Muhallah Noori Bagh', 'Community Health Centre', 'D-Type Quaid-e-Azam Colony', 
-            'C-Type Quaid-e-Azam Colony', 'Babul Quaid', 'Quaid-e-Azam University'
+            'FR_BariImam', 'FR_Noori_Bagh', 'FR_Community_Health', 'FR_D_Type',
+            'FR_C_Type', 'FR_Babul_Quaid', 'FR_QAU'
         ], 'fare': 50
     },
     {
         'code': 'FR_6', 'name': 'FR-6: PIMS Gate - E-11 Markaz', 'operator': 'CDA', 'type': 'feeder',
         'stops': [
-            'PIMS Gate', 'Tipu Market', 'Ibn-e-Sina Metro Station', 'G-9/4 Park', 'G-9 Markaz', 
-            'F-9 Park Ravi Gate', 'Shaheen Chowk', 'F-9 Khyber Gate', 'PAF Hospital', 
-            'Pakistan Gate DCI', 'Maroof International Hospital', 'F-10 Markaz', 'IMCB F-10/4', 
-            'F-10/ F-11 Greenbelt', 'Barki Road F-11', 'F-11 Markaz', 'OPF Colony', 
-            'Golra Shareef F-11', 'NPF Society', 'E-11 Markaz'
+            'RED_PIMS', 'FR_Tipu_Market', 'RED_Ibn_e_Sina', 'FR_G9_4_Park', 'FR_G9_Markaz',
+            'FR_F9_Ravi_Gate', 'FR_Shaheen_Chowk', 'FR_F9_Khyber', 'FR_PAF_Hospital',
+            'FR_DCI', 'FR_Maroof', 'FR_F10_Markaz', 'FR_IMCB_F10',
+            'FR_F10_F11_Greenbelt', 'FR_Barki_Road', 'FR_F11_Markaz', 'FR_OPF_Colony',
+            'FR_Golra_Shareef', 'FR_NPF_Society', 'FR_E11'
         ], 'fare': 50
     },
     {
         'code': 'FR_7', 'name': 'FR-7: PIMS Gate - G-10 Metro Station', 'operator': 'CDA', 'type': 'feeder',
         'stops': [
-            'PIMS Gate', 'Children Hospital', 'NORI Hospital', 'Dental Hospital', 'G-8 Markaz', 
-            'Development Park', 'Chaman Metro Station', 'G-9/4 Park', 'Karachi Company', 'G-9 Markaz', 
-            'Police Flats', 'College Morh', 'G-10 Markaz', 'PHA Flats', 'Tanki Stop', 
-            'Greenbelt G-10/G-11', 'Institute of Modern Studies', 'G-11 Markaz', 'Mehrabad', 
-            'NUST Metro Station', 'Bar Council', 'DC Office', 'G-10 Metro Station'
+            'RED_PIMS', 'FR_Childrens_Hospital', 'FR_NORI', 'FR_Dental', 'FR_G8_Markaz',
+            'FR_Dev_Park', 'RED_Chaman', 'FR_G9_4_Park', 'FR_Karachi_Company', 'FR_G9_Markaz',
+            'FR_Police_Flats', 'FR_College_Morh', 'FR_G10_Markaz', 'FR_PHA_Flats', 'FR_Tanki_Stop',
+            'FR_G10_G11_Greenbelt', 'FR_IMS', 'FR_G11_Markaz', 'FR_Mehrabad',
+            'ORG_NUST', 'FR_Bar_Council', 'FR_DC_Office', 'ORG_G10'
         ], 'fare': 50
     },
     {
         'code': 'FR_8A', 'name': 'FR-8A: PIMS Gate - Tramri Chowk', 'operator': 'CDA', 'type': 'feeder',
         'stops': [
-            'PIMS Gate', "Children's Hospital", 'T&T Stop', 'Fire Brigade', 'CDA Stop', 'Aabpara', 
-            'Foreign Office', 'Kashmir Chowk', 'Rawal Chowk', 'Rawal Town', 'School Board Stop', 
-            'Rawal Dam Colony', 'NARC Colony', 'NIH Allergy Center', 'Shahzad Town', 
-            'Park View (Kuri Road)', 'Green Avenue', 'Chatta Bakhtawar', 'Hostel City', 
-            'COMSATS University', 'Tamma Stop', 'Tramri Chowk'
+            'RED_PIMS', 'FR_Childrens_Hospital', 'FR_TNT', 'FR_Fire_Brigade', 'FR_CDA_Stop', 'FR_Aabpara',
+            'FR_Foreign_Office', 'FR_Kashmir_Chowk', 'FR_Rawal_Chowk', 'FR_Rawal_Town', 'FR_School_Board',
+            'FR_Rawal_Dam_Colony', 'FR_NARC', 'FR_NIH', 'FR_Shahzad_Town',
+            'FR_Park_View', 'FR_Green_Avenue', 'FR_Chatta_Bakhtawar', 'FR_Hostel_City',
+            'FR_COMSATS', 'FR_Tamma_Stop', 'FR_Tramri'
         ], 'fare': 50
     },
     {
         'code': 'FR_8B', 'name': 'FR-8B: Khanna Pul - Nilore', 'operator': 'CDA', 'type': 'feeder',
         'stops': [
-            'Khanna Pul', 'Rawal General Hospital', 'Sanam Chowk', 'Burma Town', 'Ghauri Gardens', 
-            'Tarlai Farms', 'Post Office Tarlai', 'Dak Khana Stop', 'Tarlai Kalan School', 
-            'HBS Medical and Dental College', 'Tramri Chowk', 'HBS General Hospital', 
-            'Ali Pur Bank Stop', 'Khaula Shaheed Model College', 'Punjgran', 'Farash Town', 
-            'Sultana Foundation', 'Jhang Sayedan', 'Arslan Town', 'Shaheen Town', 'Thanda Pani', 
-            'IMCG Thanda Pani', 'Aziz Market', 'Nilore'
+            'FR_KhannaPul', 'FR_Rawal_Gen', 'FR_Sanam_Chowk', 'FR_Burma_Town', 'FR_Ghauri_Gardens',
+            'FR_Tarlai_Farms', 'FR_PO_Tarlai', 'FR_Dak_Khana', 'FR_Tarlai_School',
+            'FR_HBS_College', 'FR_Tramri', 'FR_HBS_Hospital',
+            'FR_Ali_Pur', 'FR_Khaula_Shaheed', 'FR_Punjgran', 'FR_Farash_Town',
+            'FR_Sultana', 'FR_Jhang_Sayedan', 'FR_Arslan_Town', 'FR_Shaheen_Town', 'FR_Thanda_Pani',
+            'FR_IMCG_Thanda', 'FR_Aziz_Market', 'FR_Nilore'
         ], 'fare': 50
     },
     {
         'code': 'FR_8C', 'name': 'FR-8C: PIMS Gate - Tramri Chowk', 'operator': 'CDA', 'type': 'feeder',
         'stops': [
-            'PIMS Gate', "Children's Hospital", 'T&T Stop', 'Shakarparian', 'Parade Ground', 
-            'Faizabad Interchange', 'Rawal Chowk', 'Rawal Town', 'School Board Stop', 
-            'Rawal Dam Colony', 'NARC Colony', 'NIH Allergy Center', 'Shahzad Town', 
-            'Park View (Kuri Road)', 'Green Avenue', 'Chatta Bakhtawar', 'Hostel City', 
-            'COMSATS University', 'Tamma Stop', 'Tramri Chowk'
+            'RED_PIMS', 'FR_Childrens_Hospital', 'FR_TNT', 'FR_Shakarparian', 'RED_Parade_Ground',
+            'FR_Faizabad_IC', 'FR_Rawal_Chowk', 'FR_Rawal_Town', 'FR_School_Board',
+            'FR_Rawal_Dam_Colony', 'FR_NARC', 'FR_NIH', 'FR_Shahzad_Town',
+            'FR_Park_View', 'FR_Green_Avenue', 'FR_Chatta_Bakhtawar', 'FR_Hostel_City',
+            'FR_COMSATS', 'FR_Tamma_Stop', 'FR_Tramri'
         ], 'fare': 50
     },
     {
         'code': 'FR_9', 'name': 'FR-9: Khanna - Golra Morh Metro Station', 'operator': 'CDA', 'type': 'feeder',
         'stops': [
-            'Khanna Pul', 'Zia Masjid', 'Kuri Road', 'Iqbal Town', 'Dhoke Kala Khan', 'Sohan', 
-            'Faizabad Metro Station', 'IJP Metro Station', 'Pindora Chungi', 'Katarian Chungi', 
-            'Katarian Pull', 'CDA Stop', 'Pully Stop', 'Mandi Morh', 'Fauji Colony', 
-            'Carriage Factory', 'Westridge', 'CTTI', 'Social Security Hospital', 'British Homes', 
-            'Pir Wadhai Morh', 'Malaal Morh', 'Golra Morh Metro Station'
+            'FR_KhannaPul', 'FR_Zia_Masjid', 'FR_Kuri_Road', 'FR_Iqbal_Town', 'FR_Dhoke_Kala_Khan', 'FR_Sohan',
+            'RED_Faizabad', 'RED_IJP', 'FR_Pindora', 'FR_Katarian_Chungi',
+            'FR_Katarian_Pull', 'FR_CDA_Stop', 'FR_Pully_Stop', 'FR_MandiMorh', 'FR_Fauji_Colony',
+            'FR_Carriage', 'FR_Westridge', 'FR_CTTI', 'FR_Social_Sec', 'FR_British_Homes',
+            'FR_Pir_Wadhai', 'FR_Malaal_Morh', 'ORG_Golra_Morh'
         ], 'fare': 50
     },
     {
         'code': 'FR_10_5', 'name': 'FR-10 & 5: Golra Morh Metro Station - Taxila', 'operator': 'CDA', 'type': 'feeder',
         'stops': [
-            'Golra Morh Metro Station', 'G-13 Metro Station', 'NUST Metro Station', 'A. K. Brohi Road', 
-            'G-11 Markaz', 'Federal Government College F-11', 'F-11 Markaz', 'OPF Colony', 
-            'Golra Shareef F-11', 'NPF Society Gate', 'Multy Gate', 
-            'Islamabad International Hospital (E-11/2)', 'D-12 Service Road', 'IESCO D-12', 
-            'D-12 Markaz', 'Sangjani', 'B-17 Gate No. 1', 'B-17 Gate No. 2', 'Taxilla Bypass', 
-            'Wahdat Colony', 'Timber Market', 'Kohinoor Mill Colony', 'Kohinoor Mill', 
-            'Golra Morh Chowk', 'Taxilla Highway Stop'
+            'ORG_Golra_Morh', 'ORG_G13', 'ORG_NUST', 'FR_AK_Brohi',
+            'FR_G11_Markaz', 'FR_FGC_F11', 'FR_F11_Markaz', 'FR_OPF_Colony',
+            'FR_Golra_Shareef', 'FR_NPF_Gate', 'FR_Multy_Gate',
+            'FR_IIH_E11', 'FR_D12_Service', 'FR_IESCO_D12',
+            'FR_D12_Markaz', 'FR_Sangjani', 'FR_B17_Gate1', 'FR_B17_Gate2', 'FR_Taxilla_Bypass',
+            'FR_Wahdat', 'FR_Timber', 'FR_Kohinoor_Colony', 'FR_Kohinoor_Mill',
+            'FR_Golra_Morh_Chowk', 'FR_Taxila'
         ], 'fare': 50
     },
     {
         'code': 'FR_11', 'name': 'FR-11: Golra Morh Metro Station - I-16', 'operator': 'CDA', 'type': 'feeder',
         'stops': [
-            'Golra Morh Metro Station', 'Golra Morh Chowk', 'IMCG I-14', 'Riphah Int University', 
-            'Main Road - St 32 Chowk', 'Mian Chowk', 'Shaheed Chowk I-14', '(Hail & Ride in I-15)', 
-            'Rana Chowk', 'PHA Flats', 'Noon (S. R. W. I-16)'
+            'ORG_Golra_Morh', 'FR_Golra_Morh_Chowk', 'FR_IMCG_I14', 'FR_Riphah',
+            'FR_MainRd_St32', 'FR_Mian_Chowk', 'FR_Shaheed_Chowk_I14', 'FR_I15_Hail',
+            'FR_Rana_Chowk', 'FR_PHA_Flats', 'FR_I16'
         ], 'fare': 50
     },
     {
         'code': 'FR_12', 'name': 'FR-12: Taxilla Highway Stop - Hassan Abdal', 'operator': 'CDA', 'type': 'feeder',
         'stops': [
-            'Taxilla Highway Stop', 'University of Wah', 'Wah Barrier 2', 'Gulshan-e-Anwar', 
-            'Jinnah Colony', 'New City Phase 1', 'Losar Sharfo', 'New City Phase 2', 'Bahtar Morh', 
-            'Wah Model Town Phase 1', 'Wah Model Town Phase 2', 'Swedish College, PECHS', 
-            'Malakand Stop', 'Basti', 'Sabri Gali', 'Wah Barrier 3', 'Ahmad Nagar, Doiyan', 
-            'Shah Wali Colony Road', 'Cement Factory Road, Bangu Chowk', 'Dhok Dhollian', 
-            'WAPDA Colony', 'Tipu Sultan Chowk', 'The Avanue 03', 'Akram City', 'Civil City Road', 
-            'Fateh Jang', 'Hassan Abdal'
+            'FR_Taxila', 'FR_Univ_Wah', 'FR_Wah_B2', 'FR_Gulshan_Anwar', 'FR_Jinnah_Colony', 'FR_New_City_1', 
+            'FR_Losar_Sharfo', 'FR_New_City_2', 'FR_Bahtar_Morh', 'FR_Wah_Model_1', 'FR_Wah_Model_2', 
+            'FR_Swedish_College', 'FR_Malakand', 'FR_Basti', 'FR_Sabri_Gali', 'FR_Wah_B3', 'FR_Ahmad_Nagar', 
+            'FR_Shah_Wali', 'FR_Cement_Factory', 'FR_Dhok_Dhollian', 'FR_WAPDA', 'FR_Hassan_Abdal', 
+            'FR_Tipu_Sultan', 'FR_Avanue03', 'FR_Akram_City', 'FR_Civil_City'
         ], 'fare': 50
     },
     {
         'code': 'FR_13', 'name': 'FR-13: Golra Morh Metro Station - Fateh Jang', 'operator': 'CDA', 'type': 'feeder',
         'stops': [
-            'Golra Morh Metro Station', 'N-5 Metro Station', 'G-15 / H-15', 'G-16 / H-16', 'G-16/1', 
-            'Masjid Abu Al Qasim', 'Top City', 'Mumtaz City', 'Airport Enclave', 'Madni Chowk', 
-            'Dhuma', 'IJP Metro Station', 'Mohri Patak', 'Dhoke Miskeen', 'Mangial', 
-            'Graceland Housing Society', 'Pully Stop', 'Qutbal', 'Garhi Hasu Khan', 'Hattar Choki'
+            'ORG_Golra_Morh', 'ORG_N5', 'ORG_G15', 'ORG_G16', 'FR_G16_1', 'ORG_Masjid_Abul_Qasim', 
+            'ORG_Top_City_Interchange', 'FR_Mumtaz_City', 'FR_Airport_Enclave', 'FR_Madni_Chowk', 
+            'FR_Dhuma', 'RED_IJP', 'FR_Mohri_Patak', 'FR_Dhoke_Miskeen', 'FR_Mangial', 'FR_Graceland', 
+            'FR_Pully_Stop', 'FR_Qutbal', 'FR_Afridi_Bagh', 'FR_Hattar', 'FR_Hattar_Choki', 
+            'FR_Garhi_Hasu', 'FR_FatehJang'
         ], 'fare': 50
     },
     {
         'code': 'FR_14', 'name': 'FR-14: Jillani Stop - Mandi Morh', 'operator': 'CDA', 'type': 'feeder',
         'stops': [
-            'Jillani Stop', 'Shahdara', 'Malpur', 'Lake View Point', 'Kashmir Chowk', 'Rawal Chowk', 
-            'Garden Avenue', 'Margalla Town', 'ITP Centre', 'Sohan', 'Faizabad Metro Station', 
-            'Punjab College', 'Pindora Chungi', 'Katarian Chungi', 'Katarian Pull', 'CDA Stop', 
-            'Mandi Morh'
+            'GRN_Jillani', 'FR_Shahdara', 'FR_Malpur', 'FR_Lake_View', 'FR_Kashmir_Chowk', 'FR_Rawal_Chowk',
+            'FR_Garden_Avenue', 'FR_Margalla_Town', 'FR_ITP_Centre', 'FR_Sohan', 'RED_Faizabad',
+            'FR_Punjab_College', 'FR_Pindora', 'FR_Katarian_Chungi', 'FR_Katarian_Pull', 'FR_CDA_Stop',
+            'FR_MandiMorh'
         ], 'fare': 50
     },
     {
         'code': 'FR_14A', 'name': 'FR-14A: Jillani Stop - Satra Meel', 'operator': 'CDA', 'type': 'feeder',
         'stops': [
-            'Jillani Stop', 'Col. Ammanullah Road', 'Athal Chowk', 'Bharakau Bazar', 'Athal Chowk', 
-            'Jhugi', 'Bhera Pul', 'Imtiaz Mart', 'Akbar Niazi', 'Phulgran', 'Dhok Badam', 'T-Chowk', 
-            'Alwadi Colony', 'Satra Meel'
+            'GRN_Jillani', 'FR_Col_Ammanullah', 'FR_Athal_Chowk', 'FR_Bharakau_Bazar', 'FR_Athal_Chowk',
+            'FR_Jhugi', 'FR_Bhera_Pul', 'FR_Imtiaz_Mart', 'FR_Akbar_Niazi', 'FR_Phulgran', 'FR_Dhok_Badam', 'FR_Rawat',
+            'FR_Alwadi_Colony', 'FR_Satra_Meel'
         ], 'fare': 50
     },
     {
         'code': 'FR_15', 'name': 'FR-15: Gulberg - Rawat', 'operator': 'CDA', 'type': 'feeder',
         'stops': [
-            'Gulberg', 'Tuth Stop', 'PWD Housing society', 'Sohan garden E block', 'Sohan garden G block', 
-            'Sohan garden H block', 'River Garden', 'Kaak Pul', 'DHA Gate 8', 'DHA Gate 7', 
-            'Suparco', 'Doctor Town', 'Watim Hospital', 'DHA Gate 5', 'Rawat'
+            'BLU_Gulberg', 'FR_Tuth_Stop', 'FR_PWD', 'FR_Sohan_E', 'FR_Sohan_G',
+            'FR_Sohan_H', 'FR_River_Garden', 'FR_Kaak_Pul', 'FR_DHA_G8', 'FR_DHA_G7',
+            'FR_Suparco', 'FR_Doctor_Town', 'FR_Watim', 'FR_DHA_G5', 'FR_Rawat'
         ], 'fare': 50
     },
     {
         'code': 'EX_16', 'name': 'EX-16: PIMS Gate - Media Town', 'operator': 'CDA', 'type': 'feeder',
         'stops': [
-            'PIMS Gate', 'Sohan', 'Khanna Pul', 'Karal Chowk', 'Gulberg', 'Tuth Stop', 
-            'PWD Housing society', 'PWD Barrier', 'DD Block', 'London Bakers', 'Bara Plaza', 'Media Town'
+            'RED_PIMS', 'FR_Sohan', 'FR_KhannaPul', 'FR_Karal_Chowk', 'BLU_Gulberg', 'FR_Tuth_Stop',
+            'FR_PWD', 'FR_PWD_Barrier', 'FR_DD_Block', 'FR_London_Bakers', 'FR_Bara_Plaza', 'FR_MediaTown'
         ], 'fare': 50
     },
     {
         'code': 'FR_17', 'name': 'FR-17: T Chowk - Aari Syedan', 'operator': 'CDA', 'type': 'feeder',
         'stops': [
-            'T-Chowk', 'Suparco', 'DHA Gate 7', 'DHA Gate 8', 'Kaak Pul', 'Sihala', 
-            'Her Do Gher', 'Aari Syedan'
+            'FR_Rawat', 'FR_Suparco', 'FR_DHA_G7', 'FR_DHA_G8', 'FR_Kaak_Pul', 'FR_Sihala',
+            'FR_Her_Do_Gher', 'FR_Aari_Syedan'
         ], 'fare': 50
     }
 ]
