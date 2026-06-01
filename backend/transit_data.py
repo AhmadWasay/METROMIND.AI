@@ -580,6 +580,10 @@ TRANSFER_HUBS = [
 
 # ===== TIMETABLE & SERVICE INFO (From Route List CSV) =====
 TIMETABLE = {
+    'Red Line': {'frequency_minutes': 5, 'operating_hours': '6:00 AM - 10:00 PM', 'fare': 30, 'vehicle_type': 'BRT Articulated'},
+    'Orange Line': {'frequency_minutes': 5, 'operating_hours': '6:00 AM - 10:00 PM', 'fare': 50, 'vehicle_type': 'BRT Articulated'},
+    'Blue Line': {'frequency_minutes': 12, 'operating_hours': '6:00 AM - 10:00 PM', 'fare': 50, 'vehicle_type': 'Metro'},
+    'Green Line': {'frequency_minutes': 10, 'operating_hours': '6:00 AM - 10:00 PM', 'fare': 50, 'vehicle_type': 'Metro'},
     'BRT_Lines': {
         'frequency_minutes': 5, 'operating_hours': '6:00 AM - 10:00 PM', 'fare': 50, 'vehicle_type': 'BRT Articulated'
     },
