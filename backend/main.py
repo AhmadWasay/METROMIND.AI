@@ -9,6 +9,7 @@ from models import init_db, init_transit_capacity
 
 app = Flask(__name__)
 CORS(app, origins=['*'], supports_credentials=True)
+CORS(app)
 
 # Initialize database
 try:
@@ -22,7 +23,8 @@ transit_engine = TransitGraph()
 
 # Import extended API endpoints
 try:
-    from api_extended import *
+    # from api_extended import *
+    pass
 except Exception as e:
     print(f"Warning: Extended API not available: {e}")
 
