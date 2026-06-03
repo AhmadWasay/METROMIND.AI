@@ -94,6 +94,11 @@ function App() {
   };
 
   const calculateRoute = async () => {
+    if (!userId) {
+      setShowAuthModal(true);
+      return;
+    }
+
     if (!source || !destination) {
       alert('Please select source and destination');
       return;

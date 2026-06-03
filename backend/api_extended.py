@@ -123,16 +123,17 @@ def initiate_password_reset():
 
 @api.route("/api/auth/password-reset/complete", methods=["POST"])
 def complete_password_reset():
-    """Completes a password reset by logging the user in with an OTP."""
+    """Completes a password reset by verifying OTP and setting a new password."""
     try:
         data = request.get_json()
         email = data.get('email')
         otp = data.get('otp')
+        new_password = data.get('new_password')
 
-        if not email or not otp:
-            return jsonify({"error": "Email and OTP are required"}), 400
+        if not all([email, otp, new_password]):
+            return jsonify({"error": "Email, OTP, and new password are required"}), 400
         
-        result = models.login_with_otp(email, otp)
+        result = models.reset_password_with_otp(email, otp, new_password)
         
         return jsonify(result), 200 if result['status'] == 'success' else 401
     except Exception as e:

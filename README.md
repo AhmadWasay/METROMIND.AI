@@ -18,21 +18,12 @@ Instead of a traditional e-commerce store, MetroMind "sells" optimized digital i
 - Real-time timetable analysis
 - Multiple route packages (Fastest, Budget, Direct)
 
-### 📦 **E-Commerce Integration**
-| Traditional E-Commerce | MetroMind Transit |
-|---|---|
-| Product | Digital Itinerary |
-| Inventory | Bus/Metro Capacity |
-| Order | Booking Confirmation |
-| Tracking | Live Trip Status |
-| Feedback | Post-Trip Rating |
-
 ### 💼 **E-Commerce Features**
 1. ✅ User Authentication (Signup/Login)
 2. ✅ Route Selection & Booking
 3. ✅ Inventory Management (Seat Capacity)
 4. ✅ Real-Time Order Tracking
-5. ✅ Booking Cancellation with Refund
+5. ✅ Booking Cancellation
 6. ✅ Feedback & Rating System
 7. ✅ Admin Analytics Dashboard
 
@@ -40,24 +31,6 @@ Instead of a traditional e-commerce store, MetroMind "sells" optimized digital i
 - Live transit network map with Leaflet
 - Real-time vehicle tracking
 - Station search & nearby stops discovery
-- Travel history and favorite routes
-- Multi-language support ready
-A web-based AI-powered routing system for Islamabad/Rawalpindi transit. The platform calculates optimal routes across metro and feeder bus lines, then presents itinerary packages and booking-style trip management.
-
-## 🎯 Project Vision
-
-MetroMind AI solves the commuting puzzle by combining:
-- **Metro lines** for fast trunk travel
-- **Feeder bus routes** for first/last-mile connectivity
-- **Inventory-style booking** logic for live trip tracking and order flow
-
-## ✨ Key Features
-
-- AI-driven route optimization
-- Multi-modal itinerary planning
-- Metro and bus station lookup
-- Searchable origin/destination selection
-- Booking, cancellation, and rating endpoints
 
 ## 🏗️ Architecture
 

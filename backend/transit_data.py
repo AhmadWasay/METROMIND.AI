@@ -1,5 +1,4 @@
-# Transit data for Islamabad/Rawalpindi public transport system
-# Based on official RMBS (Rawalpindi Metro Bus Service) and CDA Feeder Route Network 
+# transit_data.py
 
 # ===== METRO/RAPID TRANSIT STATIONS (BRT Core Network) =====
 METRO_STATIONS = [
@@ -30,6 +29,8 @@ METRO_STATIONS = [
     {'code': 'RED_Secretariat', 'name': 'Secretariat Station', 'line': 'Red Line', 'type': 'metro', 'area': 'Red Zone', 'coordinates': {'lat': 33.731, 'lng': 73.097}},
     
     # ORANGE LINE (Faiz Ahmad Faiz to Airport)
+    # Added connection node here so the graph links the two lines
+    {'code': 'ORG_Faiz_Ahmad_Faiz', 'name': 'Faiz Ahmad Faiz', 'line': 'Orange Line', 'type': 'metro', 'area': 'H-8', 'coordinates': {'lat': 33.669, 'lng': 73.054}},
     {'code': 'ORG_NHA', 'name': 'NHA', 'line': 'Orange Line', 'type': 'metro', 'area': 'G-10/H-10', 'coordinates': {'lat': 33.664, 'lng': 73.038}},
     {'code': 'ORG_High_Court', 'name': 'High Court', 'line': 'Orange Line', 'type': 'metro', 'area': 'G-10', 'coordinates': {'lat': 33.658, 'lng': 73.025}},
     {'code': 'ORG_G10', 'name': 'G-10 Station', 'line': 'Orange Line', 'type': 'metro', 'area': 'G-10', 'coordinates': {'lat': 33.652, 'lng': 73.012}},
@@ -52,7 +53,7 @@ METRO_STATIONS = [
     {'code': 'GRN_Jillani', 'name': 'Jillani, Bhara Kahu', 'line': 'Green Line', 'type': 'metro', 'area': 'Bhara Kahu', 'coordinates': {'lat': 33.755, 'lng': 73.168}},
 ]
 
-# ===== BUS STOPS (Feeder Route Nodes - Comprehensive Data) =====
+# ===== BUS STOPS (Feeder Route Nodes) =====
 BUS_STOPS = [
     # Core Anchors
     {'code': 'FR_KhannaPul', 'name': 'Khanna Pul', 'type': 'bus', 'area': 'Islamabad Expressway', 'coordinates': {'lat': 33.626, 'lng': 73.111}},
@@ -328,8 +329,6 @@ BUS_STOPS = [
     {'code': 'FR_Sihala', 'name': 'Sihala', 'type': 'bus', 'area': 'Kahuta Road', 'coordinates': {'lat': 33.540, 'lng': 73.180}},
     {'code': 'FR_Her_Do_Gher', 'name': 'Her Do Gher', 'type': 'bus', 'area': 'Kahuta Road', 'coordinates': {'lat': 33.535, 'lng': 73.190}},
     {'code': 'FR_Aari_Syedan', 'name': 'Aari Syedan', 'type': 'bus', 'area': 'Kahuta Road', 'coordinates': {'lat': 33.530, 'lng': 73.200}},
-    
-    # Missing Route Extentions Appended Below
     {'code': 'FR_Hassan_Abdal', 'name': 'Hassan Abdal', 'type': 'bus', 'area': 'Hassan Abdal', 'coordinates': {'lat': 33.862, 'lng': 72.638}},
     {'code': 'FR_Mumtaz_City', 'name': 'Mumtaz City', 'type': 'bus', 'area': 'Srinagar Hwy', 'coordinates': {'lat': 33.570, 'lng': 72.855}},
     {'code': 'FR_Afridi_Bagh', 'name': 'Afridi Bagh', 'type': 'bus', 'area': 'Fateh Jang Rd', 'coordinates': {'lat': 33.522, 'lng': 72.765}},
@@ -339,29 +338,9 @@ BUS_STOPS = [
 # Combined list of all stops
 ALL_STOPS = METRO_STATIONS + BUS_STOPS
 
-# ===== BUS ROUTES (CDA Feeder Routes & BRT fully populated) =====
+# ===== BUS ROUTES (CDA Feeder Routes) =====
+# BRT_RED and BRT_ORANGE removed; the algorithm builds them dynamically.
 BUS_ROUTES = [
-    # BRT Core Routes
-    {
-        'code': 'BRT_RED', 'name': 'Red Line: Saddar - Secretariat', 'operator': 'RMBS', 'type': 'brt',
-        'stops': [
-            'RED_Saddar', 'RED_Marrir_Chowk', 'RED_Liaquat_Bagh', 'RED_Committe_Chowk', 'RED_Waris_Khan',
-            'RED_Chandni_Chowk', 'RED_Rehmanabad', 'RED_6th_Road', 'RED_Shamsabad', 'RED_Faizabad', 'RED_IJP',
-            'RED_Potohar', 'RED_Khayaban', 'RED_Faiz_Ahmad_Faiz', 'RED_Kashmir_Highway', 'RED_Chaman', 'RED_Ibn_e_Sina',
-            'RED_Kachery', 'RED_PIMS', 'RED_Stock_Exchange', 'RED_7th_Avenue', 'RED_Shaheed_e_Millat', 'RED_Parade_Ground',
-            'RED_Secretariat'
-        ], 'fare': 30
-    },
-    {
-        'code': 'BRT_ORANGE', 'name': 'Orange Line: Faiz Ahmad Faiz - Airport', 'operator': 'RMBS', 'type': 'brt',
-        'stops': [
-            'RED_Faiz_Ahmad_Faiz', 'ORG_NHA', 'ORG_High_Court', 'ORG_Police_Foundation', 'ORG_NUST', 'ORG_G13',
-            'ORG_Golra_Morh', 'ORG_N5', 'ORG_G15', 'ORG_G16', 'ORG_Masjid_Abul_Qasim', 'ORG_Top_City_Interchange',
-            'ORG_Rakh_Pind_Ranjha', 'ORG_Islamabad_International_Airport'
-        ], 'fare': 50
-    },
-    
-    # Islamabad Feeder Routes (FR)
     {
         'code': 'FR_1', 'name': 'FR-1: Khanna Pul - NUST Metro Station', 'operator': 'CDA', 'type': 'feeder',
         'stops': [
@@ -551,34 +530,16 @@ BUS_ROUTES = [
 ]
 
 # ===== TRANSFER HUBS =====
+# Flattened into the tuple list needed by the algorithm
 TRANSFER_HUBS = [
-    {
-        'code': 'PIMS_Hub', 'name': 'PIMS Hospital Transfer Hub',
-        'coordinates': {'lat': 33.705, 'lng': 73.048},
-        'lines': ['Red Line', 'Blue Line', 'Green Line', 'FR-2', 'FR-3A', 'FR-4', 'FR-6', 'FR-7', 'FR-8A', 'FR-8C', 'EX-16'],
-        'facilities': ['Central Interchange', 'Ticketing', 'Waiting Area']
-    },
-    {
-        'code': 'FaizAhmad_Hub', 'name': 'Faiz Ahmad Faiz Hub',
-        'coordinates': {'lat': 33.669, 'lng': 73.054},
-        'lines': ['Red Line', 'Orange Line', 'FR-2'],
-        'facilities': ['BRT Transfer Point', 'Ticketing']
-    },
-    {
-        'code': 'Golra_Hub', 'name': 'Golra Morh Station Hub',
-        'coordinates': {'lat': 33.633, 'lng': 72.973},
-        'lines': ['Orange Line', 'FR-9', 'FR-10 & 5', 'FR-11', 'FR-13'],
-        'facilities': ['Western Transfer Point', 'Ticketing']
-    },
-    {
-        'code': 'Khanna_Hub', 'name': 'Khanna Pul Hub',
-        'coordinates': {'lat': 33.626, 'lng': 73.111},
-        'lines': ['Blue Line', 'FR-1', 'FR-8B', 'FR-9', 'EX-16'],
-        'facilities': ['Expressway Transfer Node']
-    }
+    ('RED_PIMS', 'BLU_Gulberg'),
+    ('RED_PIMS', 'GRN_Jillani'),
+    ('RED_Faiz_Ahmad_Faiz', 'ORG_Faiz_Ahmad_Faiz'),
+    ('ORG_Golra_Morh', 'FR_Golra_Morh_Chowk'),
+    ('FR_KhannaPul', 'BLU_Gulberg')
 ]
 
-# ===== TIMETABLE & SERVICE INFO (From Route List CSV) =====
+# ===== TIMETABLE & SERVICE INFO =====
 TIMETABLE = {
     'Red Line': {'frequency_minutes': 5, 'operating_hours': '6:00 AM - 10:00 PM', 'fare': 30, 'vehicle_type': 'BRT Articulated'},
     'Orange Line': {'frequency_minutes': 5, 'operating_hours': '6:00 AM - 10:00 PM', 'fare': 50, 'vehicle_type': 'BRT Articulated'},
@@ -610,10 +571,10 @@ TIMETABLE = {
 
 # ===== LINE COLORS FOR UI =====
 LINE_COLORS = {
-    'Red Line': '#E74C3C',    # Saddar - Secretariat
-    'Orange Line': '#F39C12', # Faiz Ahmad Faiz - Airport
-    'Blue Line': '#3498DB',   # PIMS - Gulberg
-    'Green Line': '#27AE60',  # PIMS - Bhara Kahu
+    'Red Line': '#E74C3C',
+    'Orange Line': '#F39C12',
+    'Blue Line': '#3498DB',
+    'Green Line': '#27AE60',
     'FR-1': '#95A5A6',
     'FR-3A': '#95A5A6',
     'FR-4': '#95A5A6',

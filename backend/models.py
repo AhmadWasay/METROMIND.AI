@@ -149,7 +149,7 @@ def create_user(email, password, full_name, phone=None):
         user_id = f"user_{uuid.uuid4().hex[:12]}"
         hashed_password = generate_password_hash(password)
         otp = str(random.randint(100000, 999999))
-        otp_expires_at = (datetime.now() + timedelta(minutes=10)).isoformat()
+        otp_expires_at = (datetime.utcnow() + timedelta(minutes=10)).isoformat()
         
         c.execute('''
             INSERT INTO users (user_id, email, password_hash, full_name, phone, otp, otp_expires_at)
@@ -158,14 +158,12 @@ def create_user(email, password, full_name, phone=None):
         conn.commit()
         return {"status": "success", "otp": otp, "message": "User registration initiated."}
     except sqlite3.IntegrityError:
-        # If user exists but is not verified, resend OTP
         # If user exists but is not verified, resend OTP and update password
         c.execute('SELECT is_verified FROM users WHERE email = ?', (email,))
         user = c.fetchone()
         if user and not user['is_verified']:
             otp = str(random.randint(100000, 999999))
-            otp_expires_at = (datetime.now() + timedelta(minutes=10)).isoformat()
-            c.execute('UPDATE users SET otp = ?, otp_expires_at = ? WHERE email = ?', (otp, otp_expires_at, email))
+            otp_expires_at = (datetime.utcnow() + timedelta(minutes=10)).isoformat()
             # Also update the password hash, in case the user forgot and is re-signing up
             hashed_password = generate_password_hash(password)
             c.execute('UPDATE users SET password_hash = ?, otp = ?, otp_expires_at = ? WHERE email = ?', (hashed_password, otp, otp_expires_at, email))
@@ -192,7 +190,7 @@ def authenticate_user(email, password):
 
         if check_password_hash(user['password_hash'], password):
                 # Update last login
-                c.execute('UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE user_id = ?', (user['user_id'],))
+                c.execute('UPDATE users SET last_login = ? WHERE user_id = ?', (datetime.utcnow().isoformat(), user['user_id']))
                 conn.commit()
                 return {
                     "status": "success",
@@ -244,7 +242,7 @@ def verify_user_otp(email, otp):
             return {"status": "error", "message": "Account already verified."}
         
         otp_expires_at = datetime.fromisoformat(user['otp_expires_at'])
-        if user['otp'] != otp or otp_expires_at < datetime.now():
+        if user['otp'] != otp or otp_expires_at < datetime.utcnow():
             return {"status": "error", "message": "Invalid or expired OTP."}
         
         c.execute('''
@@ -270,7 +268,7 @@ def initiate_password_reset(email):
         # Only proceed if user exists and is verified.
         if user and user['is_verified']:
             otp = str(random.randint(100000, 999999))
-            otp_expires_at = (datetime.now() + timedelta(minutes=10)).isoformat()
+            otp_expires_at = (datetime.utcnow() + timedelta(minutes=10)).isoformat()
             c.execute('UPDATE users SET otp = ?, otp_expires_at = ? WHERE email = ?', (otp, otp_expires_at, email))
             conn.commit()
             return {"status": "success", "otp": otp}
@@ -283,7 +281,7 @@ def initiate_password_reset(email):
     finally:
         conn.close()
 
-def login_with_otp(email, otp):
+def reset_password_with_otp(email, otp, new_password):
     conn = get_db()
     c = conn.cursor()
     try:
@@ -297,24 +295,21 @@ def login_with_otp(email, otp):
              return {"status": "error", "message": "No password reset initiated."}
 
         otp_expires_at = datetime.fromisoformat(user['otp_expires_at'])
-        if user['otp'] != otp or otp_expires_at < datetime.now():
+        if user['otp'] != otp or otp_expires_at < datetime.utcnow():
             return {"status": "error", "message": "Invalid or expired OTP."}
         
-        # OTP is valid, log the user in
+        # OTP is valid, reset the password
+        hashed_password = generate_password_hash(new_password)
         c.execute('''
             UPDATE users 
-            SET last_login = CURRENT_TIMESTAMP, otp = NULL, otp_expires_at = NULL 
+            SET password_hash = ?, otp = NULL, otp_expires_at = NULL 
             WHERE email = ?
-        ''', (email,))
+        ''', (hashed_password, email))
         conn.commit()
         
         return {
             "status": "success",
-            "user_id": user['user_id'],
-            "email": user['email'],
-            "full_name": user['full_name'],
-            "is_premium": bool(user['is_premium']),
-            "message": "Login successful"
+            "message": "Password has been reset successfully. You can now log in with your new password."
         }
     except Exception as e:
         return {"status": "error", "message": str(e)}
@@ -326,7 +321,7 @@ def create_order(user_id, source, destination, trip_plan, trip_date):
     conn = get_db()
     c = conn.cursor()
     try:
-        order_id = f"ORD_{datetime.now().strftime('%Y%m%d%H%M%S')}_{uuid.uuid4().hex[:4]}"
+        order_id = f"ORD_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}_{uuid.uuid4().hex[:4]}"
         
         # Assume trip_plan is a dict/JSON object
         trip_plan_json = json.dumps(trip_plan)
