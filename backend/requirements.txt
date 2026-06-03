@@ -1,14 +1,16 @@
-fastapi==0.95.2
-uvicorn[standard]==0.22.0
-pydantic==1.10.12
-networkx==3.4
-python-multipart==0.0.7
+# Flask and web server components
 Flask==3.0.0
 Flask-Cors==4.0.0
+Werkzeug==3.0.3 # Explicitly add for password hashing
+
+# Core logic and utilities
 networkx==3.4
-pytest==8.0.0
 python-dotenv==1.0.0
-twilio==8.10.0
 requests==2.31.0
-SQLAlchemy==2.0.0
-PyJWT==2.8.0
+
+# Notification Services
+twilio==8.10.0
+africastalking>=1.0.0
+
+# Testing
+pytest==8.0.0

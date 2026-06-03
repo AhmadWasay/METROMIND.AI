@@ -1,448 +1,538 @@
-"""
-Database Models for MetroMind AI
-Manages Users, Orders, Cancellations, and Notifications
-"""
 import sqlite3
-import json
+import uuid
 from datetime import datetime, timedelta
-from hashlib import sha256
-import secrets
+from werkzeug.security import generate_password_hash, check_password_hash
+import random
+import json # For storing trip_plan as JSON
 
-DATABASE_PATH = "metromind.db"
+def generate_uuid():
+    return str(uuid.uuid4())
 
+# --- Database Connection ---
+DATABASE_FILE = 'metromind.db'
+
+def get_db():
+    """Helper to get a database connection with row_factory for dict-like rows."""
+    conn = sqlite3.connect(DATABASE_FILE)
+    conn.execute("PRAGMA journal_mode=WAL;") # Enable Write-Ahead Logging for better concurrency
+    conn.row_factory = sqlite3.Row # Allows accessing columns by name
+    return conn
+
+# --- Database Initialization ---
 def init_db():
-    """Initialize database schema"""
-    conn = sqlite3.connect(DATABASE_PATH)
+    """Initializes the database schema."""
+    conn = get_db()
     c = conn.cursor()
     
     # Users table
-    c.execute('''CREATE TABLE IF NOT EXISTS users (
-        user_id TEXT PRIMARY KEY,
-        email TEXT UNIQUE NOT NULL,
-        phone TEXT,
-        password_hash TEXT NOT NULL,
-        full_name TEXT,
-        is_premium BOOLEAN DEFAULT 0,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        last_login TIMESTAMP
-    )''')
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            user_id TEXT PRIMARY KEY,
+            email TEXT UNIQUE NOT NULL,
+            password_hash TEXT NOT NULL,
+            full_name TEXT NOT NULL,
+            phone TEXT,
+            is_premium BOOLEAN DEFAULT FALSE,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            last_login TEXT,
+            is_verified BOOLEAN DEFAULT FALSE,
+            otp TEXT,
+            otp_expires_at TEXT
+        )
+    ''')
     
     # Orders table
-    c.execute('''CREATE TABLE IF NOT EXISTS orders (
-        order_id TEXT PRIMARY KEY,
-        user_id TEXT NOT NULL,
-        source TEXT NOT NULL,
-        destination TEXT NOT NULL,
-        trip_date TEXT NOT NULL,
-        trip_plan TEXT NOT NULL,
-        total_fare REAL,
-        status TEXT DEFAULT 'pending',
-        booking_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        travel_time TIMESTAMP,
-        completion_time TIMESTAMP,
-        cancelled_at TIMESTAMP,
-        cancellation_reason TEXT,
-        rating REAL,
-        review TEXT,
-        email_sent BOOLEAN DEFAULT 0,
-        sms_sent BOOLEAN DEFAULT 0,
-        FOREIGN KEY (user_id) REFERENCES users(user_id)
-    )''')
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS orders (
+            order_id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL,
+            source TEXT NOT NULL,
+            destination TEXT NOT NULL,
+            trip_plan TEXT NOT NULL, -- Stored as JSON
+            trip_date TEXT NOT NULL,
+            booking_time TEXT DEFAULT CURRENT_TIMESTAMP,
+            status TEXT DEFAULT 'pending', -- pending, confirmed, in_transit, completed, cancelled
+            rating INTEGER,
+            review TEXT,
+            FOREIGN KEY (user_id) REFERENCES users(user_id)
+        )
+    ''')
     
-    # Transit Inventory (Capacity Management)
-    c.execute('''CREATE TABLE IF NOT EXISTS transit_capacity (
-        capacity_id TEXT PRIMARY KEY,
-        route_code TEXT NOT NULL,
-        service_time TEXT NOT NULL,
-        total_capacity INTEGER DEFAULT 100,
-        booked_seats INTEGER DEFAULT 0,
-        available_seats INTEGER,
-        last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )''')
+    # Transit Capacity table (simplified for demo)
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS transit_capacity (
+            route_code TEXT PRIMARY KEY,
+            total_capacity INTEGER NOT NULL,
+            available_seats INTEGER NOT NULL,
+            booked_seats INTEGER NOT NULL
+        )
+    ''')
     
-    # Admin Logs
-    c.execute('''CREATE TABLE IF NOT EXISTS admin_logs (
-        log_id TEXT PRIMARY KEY,
-        admin_id TEXT,
-        action TEXT,
-        target_order_id TEXT,
-        details TEXT,
-        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )''')
-    
-    # Notifications Queue
-    c.execute('''CREATE TABLE IF NOT EXISTS notifications (
-        notification_id TEXT PRIMARY KEY,
-        order_id TEXT NOT NULL,
-        user_id TEXT NOT NULL,
-        notification_type TEXT,
-        channel TEXT,
-        message TEXT,
-        status TEXT DEFAULT 'pending',
-        sent_at TIMESTAMP,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (order_id) REFERENCES orders(order_id),
-        FOREIGN KEY (user_id) REFERENCES users(user_id)
-    )''')
-    
-    # Settings table
-    c.execute('''CREATE TABLE IF NOT EXISTS settings (
-        setting_key TEXT PRIMARY KEY,
-        setting_value TEXT,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )''')
+    # Notifications table (for queuing emails/SMS)
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS notifications (
+            notification_id TEXT PRIMARY KEY,
+            order_id TEXT,
+            user_id TEXT NOT NULL,
+            type TEXT NOT NULL, -- email, sms
+            event TEXT NOT NULL, -- booking_confirmation, status_update, alert
+            message TEXT NOT NULL,
+            status TEXT DEFAULT 'pending', -- pending, sent, failed
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            sent_at TEXT,
+            FOREIGN KEY (user_id) REFERENCES users(user_id),
+            FOREIGN KEY (order_id) REFERENCES orders(order_id)
+        )
+    ''')
+
+    # Admin Logs table
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS admin_logs (
+            log_id TEXT PRIMARY KEY,
+            admin_id TEXT, -- Could be user_id of an admin
+            action TEXT NOT NULL,
+            timestamp TEXT DEFAULT CURRENT_TIMESTAMP,
+            details TEXT,
+            FOREIGN KEY (admin_id) REFERENCES users(user_id)
+        )
+    ''')
     
     conn.commit()
     conn.close()
 
-def get_db():
-    """Get database connection"""
-    conn = sqlite3.connect(DATABASE_PATH)
-    conn.row_factory = sqlite3.Row
-    return conn
-
-# =================== USER OPERATIONS ===================
-
-def create_user(email, password, full_name, phone=None):
-    """Create new user account"""
+def init_transit_capacity():
+    """Initializes dummy transit capacity for demo routes."""
     conn = get_db()
     c = conn.cursor()
     
-    user_id = f"user_{secrets.token_hex(8)}"
-    password_hash = sha256(password.encode()).hexdigest()
+    # Example routes and capacities
+    # These should ideally come from transit_data.py or a config
+    dummy_capacities = {
+        'BRT_RED': 1500,
+        'BRT_ORANGE': 1800,
+        'FR_1': 60,
+        'FR_2': 50,
+        'FR_3A': 50,
+        'FR_4': 70,
+        'FR_4A': 40,
+        'FR_6': 50,
+        'FR_7': 60,
+        'FR_8A': 50,
+        'FR_8B': 50,
+        'FR_8C': 50,
+        'FR_9': 60,
+        'FR_10_5': 50,
+        'FR_11': 50,
+        'FR_12': 50,
+        'FR_13': 50,
+        'FR_14': 60,
+        'FR_14A': 40,
+        'FR_15': 50,
+        'EX_16': 50,
+        'FR_17': 50,
+    }
     
+    for route_code, capacity in dummy_capacities.items():
+        c.execute('''
+            INSERT OR IGNORE INTO transit_capacity (route_code, total_capacity, available_seats, booked_seats)
+            VALUES (?, ?, ?, ?)
+        ''', (route_code, capacity, capacity, 0))
+    
+    conn.commit()
+    conn.close()
+
+# --- User Management ---
+def create_user(email, password, full_name, phone=None):
+    conn = get_db()
+    c = conn.cursor()
     try:
-        c.execute('''INSERT INTO users (user_id, email, password_hash, full_name, phone)
-                     VALUES (?, ?, ?, ?, ?)''',
-                  (user_id, email, password_hash, full_name, phone))
+        user_id = f"user_{uuid.uuid4().hex[:12]}"
+        hashed_password = generate_password_hash(password)
+        otp = str(random.randint(100000, 999999))
+        otp_expires_at = (datetime.now() + timedelta(minutes=10)).isoformat()
+        
+        c.execute('''
+            INSERT INTO users (user_id, email, password_hash, full_name, phone, otp, otp_expires_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ''', (user_id, email, hashed_password, full_name, phone, otp, otp_expires_at))
         conn.commit()
-        return {"status": "success", "user_id": user_id, "message": "Account created successfully"}
+        return {"status": "success", "otp": otp, "message": "User registration initiated."}
     except sqlite3.IntegrityError:
-        return {"status": "error", "message": "Email already exists"}
+        # If user exists but is not verified, resend OTP
+        # If user exists but is not verified, resend OTP and update password
+        c.execute('SELECT is_verified FROM users WHERE email = ?', (email,))
+        user = c.fetchone()
+        if user and not user['is_verified']:
+            otp = str(random.randint(100000, 999999))
+            otp_expires_at = (datetime.now() + timedelta(minutes=10)).isoformat()
+            c.execute('UPDATE users SET otp = ?, otp_expires_at = ? WHERE email = ?', (otp, otp_expires_at, email))
+            # Also update the password hash, in case the user forgot and is re-signing up
+            hashed_password = generate_password_hash(password)
+            c.execute('UPDATE users SET password_hash = ?, otp = ?, otp_expires_at = ? WHERE email = ?', (hashed_password, otp, otp_expires_at, email))
+            conn.commit()
+            return {"status": "resent_otp", "otp": otp, "message": "User already exists but is not verified. A new OTP has been sent."}
+        return {"status": "error", "message": "Email already registered and verified"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
     finally:
         conn.close()
 
 def authenticate_user(email, password):
-    """Authenticate user and return user_id"""
     conn = get_db()
     c = conn.cursor()
-    
-    password_hash = sha256(password.encode()).hexdigest()
-    
-    c.execute('SELECT user_id, is_premium FROM users WHERE email = ? AND password_hash = ?',
-              (email, password_hash))
-    user = c.fetchone()
-    
-    if user:
-        # Update last login
-        c.execute('UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE user_id = ?',
-                  (user['user_id'],))
-        conn.commit()
-        return {"status": "success", "user_id": user['user_id'], "is_premium": user['is_premium']}
-    
-    conn.close()
-    return {"status": "error", "message": "Invalid credentials"}
+    try:
+        c.execute('SELECT * FROM users WHERE email = ?', (email,))
+        user = c.fetchone()
+        
+        if not user:
+            return {"status": "error", "message": "Invalid email or password"}
+
+        if not user['is_verified']:
+            return {"status": "error", "message": "Account not verified. Please check your email for an OTP."}
+
+        if check_password_hash(user['password_hash'], password):
+                # Update last login
+                c.execute('UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE user_id = ?', (user['user_id'],))
+                conn.commit()
+                return {
+                    "status": "success",
+                    "user_id": user['user_id'],
+                    "email": user['email'],
+                    "full_name": user['full_name'],
+                    "is_premium": bool(user['is_premium']),
+                    "message": "Login successful"
+                }
+        return {"status": "error", "message": "Invalid email or password"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+    finally:
+        conn.close()
 
 def get_user(user_id):
-    """Get user details"""
     conn = get_db()
     c = conn.cursor()
-    
-    c.execute('SELECT * FROM users WHERE user_id = ?', (user_id,))
-    user = c.fetchone()
-    conn.close()
-    
-    if user:
-        return dict(user)
-    return None
+    try:
+        c.execute('SELECT * FROM users WHERE user_id = ?', (user_id,))
+        user = c.fetchone()
+        return dict(user) if user else None
+    finally:
+        conn.close()
 
 def upgrade_to_premium(user_id):
-    """Upgrade user to premium tier"""
     conn = get_db()
     c = conn.cursor()
-    
-    c.execute('UPDATE users SET is_premium = 1 WHERE user_id = ?', (user_id,))
-    conn.commit()
-    conn.close()
-    return {"status": "success", "message": "Upgraded to premium"}
-
-# =================== ORDER OPERATIONS ===================
-
-def create_order(user_id, source, destination, trip_plan, trip_date):
-    """Create new booking order"""
-    conn = get_db()
-    c = conn.cursor()
-    
-    order_id = f"order_{secrets.token_hex(8)}"
-    trip_plan_json = json.dumps(trip_plan) if isinstance(trip_plan, dict) else trip_plan
-    
-    # Calculate total fare from trip plan
-    total_fare = 0
-    if isinstance(trip_plan, dict) and 'segments' in trip_plan:
-        for segment in trip_plan['segments']:
-            if 'fare' in segment:
-                total_fare += segment['fare']
-    
     try:
-        c.execute('''INSERT INTO orders 
-                    (order_id, user_id, source, destination, trip_plan, trip_date, total_fare, status)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
-                  (order_id, user_id, source, destination, trip_plan_json, trip_date, total_fare, 'pending'))
+        c.execute('UPDATE users SET is_premium = TRUE WHERE user_id = ?', (user_id,))
         conn.commit()
+        return {"status": "success", "message": "User upgraded to premium"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+    finally:
         conn.close()
+
+def verify_user_otp(email, otp):
+    conn = get_db()
+    c = conn.cursor()
+    try:
+        c.execute('SELECT * FROM users WHERE email = ?', (email,))
+        user = c.fetchone()
+
+        if not user:
+            return {"status": "error", "message": "User not found."}
+        
+        if user['is_verified']:
+            return {"status": "error", "message": "Account already verified."}
+        
+        otp_expires_at = datetime.fromisoformat(user['otp_expires_at'])
+        if user['otp'] != otp or otp_expires_at < datetime.now():
+            return {"status": "error", "message": "Invalid or expired OTP."}
+        
+        c.execute('''
+            UPDATE users 
+            SET is_verified = TRUE, otp = NULL, otp_expires_at = NULL 
+            WHERE email = ?
+        ''', (email,))
+        conn.commit()
+        return {"status": "success", "message": "Account verified successfully. You can now log in."}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+    finally:
+        conn.close()
+
+def initiate_password_reset(email):
+    conn = get_db()
+    c = conn.cursor()
+    try:
+        c.execute('SELECT * FROM users WHERE email = ?', (email,))
+        user = c.fetchone()
+
+        # To prevent email enumeration, don't reveal if user exists or not.
+        # Only proceed if user exists and is verified.
+        if user and user['is_verified']:
+            otp = str(random.randint(100000, 999999))
+            otp_expires_at = (datetime.now() + timedelta(minutes=10)).isoformat()
+            c.execute('UPDATE users SET otp = ?, otp_expires_at = ? WHERE email = ?', (otp, otp_expires_at, email))
+            conn.commit()
+            return {"status": "success", "otp": otp}
+        
+        # If user doesn't exist or isn't verified, do nothing but return a generic success status
+        # so the API layer can send a generic message.
+        return {"status": "success_generic"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+    finally:
+        conn.close()
+
+def login_with_otp(email, otp):
+    conn = get_db()
+    c = conn.cursor()
+    try:
+        c.execute('SELECT * FROM users WHERE email = ?', (email,))
+        user = c.fetchone()
+
+        if not user:
+            return {"status": "error", "message": "Invalid OTP or email."}
+
+        if not user['otp'] or not user['otp_expires_at']:
+             return {"status": "error", "message": "No password reset initiated."}
+
+        otp_expires_at = datetime.fromisoformat(user['otp_expires_at'])
+        if user['otp'] != otp or otp_expires_at < datetime.now():
+            return {"status": "error", "message": "Invalid or expired OTP."}
+        
+        # OTP is valid, log the user in
+        c.execute('''
+            UPDATE users 
+            SET last_login = CURRENT_TIMESTAMP, otp = NULL, otp_expires_at = NULL 
+            WHERE email = ?
+        ''', (email,))
+        conn.commit()
+        
+        return {
+            "status": "success",
+            "user_id": user['user_id'],
+            "email": user['email'],
+            "full_name": user['full_name'],
+            "is_premium": bool(user['is_premium']),
+            "message": "Login successful"
+        }
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+    finally:
+        conn.close()
+
+# --- Order Management ---
+def create_order(user_id, source, destination, trip_plan, trip_date):
+    conn = get_db()
+    c = conn.cursor()
+    try:
+        order_id = f"ORD_{datetime.now().strftime('%Y%m%d%H%M%S')}_{uuid.uuid4().hex[:4]}"
+        
+        # Assume trip_plan is a dict/JSON object
+        trip_plan_json = json.dumps(trip_plan)
+        
+        c.execute('''
+            INSERT INTO orders (order_id, user_id, source, destination, trip_plan, trip_date, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ''', (order_id, user_id, source, destination, trip_plan_json, trip_date, 'pending'))
+        conn.commit()
+        
+        # Deduct from transit capacity (simplified: assume one seat per order)
+        # This needs to be more sophisticated, based on actual route segments
+        # For now, just deduct from a dummy route if trip_plan contains one
+        if trip_plan and 'packages' in trip_plan and trip_plan['packages']:
+            first_package = trip_plan['packages'][0]
+            if 'journey_segments' in first_package:
+                for segment in first_package['journey_segments']:
+                    if segment['type'] == 'bus' or segment['type'] == 'metro':
+                        route_code = segment.get('route') or segment.get('line')
+                        if route_code:
+                            c.execute('''
+                                UPDATE transit_capacity
+                                SET available_seats = available_seats - 1,
+                                    booked_seats = booked_seats + 1
+                                WHERE route_code = ? AND available_seats > 0
+                            ''', (route_code,))
+                            conn.commit()
+                            # If no rows updated, it means capacity was 0
+                            if c.rowcount == 0:
+                                conn.rollback() # Rollback order creation too
+                                return {"status": "error", "message": f"No seats available on {route_code}"}
+        
         return {"status": "success", "order_id": order_id, "message": "Order created successfully"}
     except Exception as e:
-        conn.close()
+        conn.rollback()
         return {"status": "error", "message": str(e)}
+    finally:
+        conn.close()
 
 def get_order(order_id):
-    """Get order details"""
     conn = get_db()
     c = conn.cursor()
-    
-    c.execute('SELECT * FROM orders WHERE order_id = ?', (order_id,))
-    order = c.fetchone()
-    conn.close()
-    
-    if order:
-        order_dict = dict(order)
-        try:
-            order_dict['trip_plan'] = json.loads(order_dict['trip_plan'])
-        except:
-            pass
-        return order_dict
-    return None
+    try:
+        c.execute('SELECT * FROM orders WHERE order_id = ?', (order_id,))
+        order = c.fetchone()
+        if order:
+            order_dict = dict(order)
+            order_dict['trip_plan'] = json.loads(order_dict['trip_plan']) # Deserialize JSON
+            return order_dict
+        return None
+    finally:
+        conn.close()
 
-def get_user_orders(user_id, status=None):
-    """Get all orders for a user"""
+def get_user_orders(user_id, status_filter=None):
     conn = get_db()
     c = conn.cursor()
-    
-    if status:
-        c.execute('SELECT * FROM orders WHERE user_id = ? AND status = ? ORDER BY booking_time DESC',
-                  (user_id, status))
-    else:
-        c.execute('SELECT * FROM orders WHERE user_id = ? ORDER BY booking_time DESC', (user_id,))
-    
-    orders = c.fetchall()
-    conn.close()
-    
-    result = []
-    for order in orders:
-        order_dict = dict(order)
-        try:
-            order_dict['trip_plan'] = json.loads(order_dict['trip_plan'])
-        except:
-            pass
-        result.append(order_dict)
-    
-    return result
+    try:
+        if status_filter:
+            c.execute('SELECT * FROM orders WHERE user_id = ? AND status = ? ORDER BY booking_time DESC', (user_id, status_filter))
+        else:
+            c.execute('SELECT * FROM orders WHERE user_id = ? ORDER BY booking_time DESC', (user_id,))
+        orders = [dict(row) for row in c.fetchall()]
+        for order in orders:
+            order['trip_plan'] = json.loads(order['trip_plan'])
+        return orders
+    finally:
+        conn.close()
+
+def cancel_order(order_id, reason=""):
+    conn = get_db()
+    c = conn.cursor()
+    try:
+        c.execute('UPDATE orders SET status = ?, review = ? WHERE order_id = ?', ('cancelled', reason, order_id))
+        conn.commit()
+        
+        # Refund capacity (simplified)
+        order = get_order(order_id)
+        if order and 'trip_plan' in order and 'packages' in order['trip_plan'] and order['trip_plan']['packages']:
+            first_package = order['trip_plan']['packages'][0]
+            if 'journey_segments' in first_package:
+                for segment in first_package['journey_segments']:
+                    if segment['type'] == 'bus' or segment['type'] == 'metro':
+                        route_code = segment.get('route') or segment.get('line')
+                        if route_code:
+                            c.execute('''
+                                UPDATE transit_capacity
+                                SET available_seats = available_seats + 1,
+                                    booked_seats = booked_seats - 1
+                                WHERE route_code = ?
+                            ''', (route_code,))
+                            conn.commit()
+        
+        return {"status": "success", "message": "Order cancelled successfully"}
+    except Exception as e:
+        conn.rollback()
+        return {"status": "error", "message": str(e)}
+    finally:
+        conn.close()
+
+def rate_order(order_id, rating, review):
+    conn = get_db()
+    c = conn.cursor()
+    try:
+        c.execute('UPDATE orders SET rating = ?, review = ?, status = ? WHERE order_id = ?', (rating, review, 'completed', order_id))
+        conn.commit()
+        return {"status": "success", "message": "Order rated successfully"}
+    except Exception as e:
+        conn.rollback()
+        return {"status": "error", "message": str(e)}
+    finally:
+        conn.close()
 
 def update_order_status(order_id, status):
-    """Update order status"""
     conn = get_db()
     c = conn.cursor()
-    
-    c.execute('UPDATE orders SET status = ? WHERE order_id = ?', (status, order_id))
-    conn.commit()
-    conn.close()
-    
-    return {"status": "success", "message": f"Order status updated to {status}"}
-
-def cancel_order(order_id, reason="User requested"):
-    """Cancel an order"""
-    conn = get_db()
-    c = conn.cursor()
-    
-    c.execute('''UPDATE orders SET status = ?, cancelled_at = CURRENT_TIMESTAMP, cancellation_reason = ? 
-                 WHERE order_id = ?''',
-              ('cancelled', reason, order_id))
-    conn.commit()
-    conn.close()
-    
-    return {"status": "success", "message": "Order cancelled successfully"}
-
-def rate_order(order_id, rating, review=None):
-    """Rate a completed order"""
-    conn = get_db()
-    c = conn.cursor()
-    
-    c.execute('''UPDATE orders SET rating = ?, review = ? WHERE order_id = ?''',
-              (rating, review, order_id))
-    conn.commit()
-    conn.close()
-    
-    return {"status": "success", "message": "Thank you for your feedback!"}
-
-# =================== TRANSIT CAPACITY ===================
-
-def init_transit_capacity():
-    """Initialize transit capacity for all routes"""
-    from transit_data import BUS_ROUTES
-    
-    conn = get_db()
-    c = conn.cursor()
-    
-    for route in BUS_ROUTES:
-        for hour in range(6, 23):  # 6 AM to 10 PM
-            service_time = f"{hour:02d}:00"
-            capacity_id = f"cap_{route['code']}_{service_time}"
-            
-            c.execute('''INSERT OR REPLACE INTO transit_capacity 
-                        (capacity_id, route_code, service_time, total_capacity, booked_seats, available_seats)
-                        VALUES (?, ?, ?, ?, ?, ?)''',
-                      (capacity_id, route['code'], service_time, 80, 0, 80))
-    
-    conn.commit()
-    conn.close()
-
-def book_seat(route_code, service_time):
-    """Book a seat on a route at specified time"""
-    conn = get_db()
-    c = conn.cursor()
-    
-    capacity_id = f"cap_{route_code}_{service_time}"
-    
-    c.execute('''SELECT booked_seats, available_seats FROM transit_capacity 
-                 WHERE capacity_id = ?''', (capacity_id,))
-    capacity = c.fetchone()
-    
-    if not capacity or capacity['available_seats'] <= 0:
+    try:
+        c.execute('UPDATE orders SET status = ? WHERE order_id = ?', (status, order_id))
+        conn.commit()
+        return {"status": "success", "message": f"Order {order_id} status updated to {status}"}
+    except Exception as e:
+        conn.rollback()
+        return {"status": "error", "message": str(e)}
+    finally:
         conn.close()
-        return {"status": "error", "message": "No seats available"}
-    
-    c.execute('''UPDATE transit_capacity SET booked_seats = booked_seats + 1, available_seats = available_seats - 1 
-                 WHERE capacity_id = ?''', (capacity_id,))
-    conn.commit()
-    conn.close()
-    
-    return {"status": "success", "message": "Seat booked successfully"}
 
-def release_seat(route_code, service_time):
-    """Release a booked seat (for cancellations)"""
-    conn = get_db()
-    c = conn.cursor()
-    
-    capacity_id = f"cap_{route_code}_{service_time}"
-    
-    c.execute('''UPDATE transit_capacity SET booked_seats = booked_seats - 1, available_seats = available_seats + 1 
-                 WHERE capacity_id = ? AND booked_seats > 0''', (capacity_id,))
-    conn.commit()
-    conn.close()
-    
-    return {"status": "success", "message": "Seat released"}
-
-def get_route_availability(route_code, service_time):
-    """Check availability for a route at given time"""
-    conn = get_db()
-    c = conn.cursor()
-    
-    capacity_id = f"cap_{route_code}_{service_time}"
-    c.execute('SELECT * FROM transit_capacity WHERE capacity_id = ?', (capacity_id,))
-    
-    result = c.fetchone()
-    conn.close()
-    
-    if result:
-        return dict(result)
-    return None
-
-# =================== NOTIFICATIONS ===================
-
-def queue_notification(order_id, user_id, notification_type, channel, message):
-    """Queue a notification (email/SMS)"""
-    conn = get_db()
-    c = conn.cursor()
-    
-    notification_id = f"notif_{secrets.token_hex(8)}"
-    
-    c.execute('''INSERT INTO notifications 
-                (notification_id, order_id, user_id, notification_type, channel, message)
-                VALUES (?, ?, ?, ?, ?, ?)''',
-              (notification_id, order_id, user_id, notification_type, channel, message))
-    conn.commit()
-    conn.close()
-    
-    return notification_id
-
-def get_pending_notifications(channel=None):
-    """Get pending notifications to send"""
-    conn = get_db()
-    c = conn.cursor()
-    
-    if channel:
-        c.execute('SELECT * FROM notifications WHERE status = ? AND channel = ?',
-                  ('pending', channel))
-    else:
-        c.execute('SELECT * FROM notifications WHERE status = ?', ('pending',))
-    
-    notifications = c.fetchall()
-    conn.close()
-    
-    return [dict(notif) for notif in notifications]
-
-def mark_notification_sent(notification_id):
-    """Mark notification as sent"""
-    conn = get_db()
-    c = conn.cursor()
-    
-    c.execute('''UPDATE notifications SET status = ?, sent_at = CURRENT_TIMESTAMP 
-                 WHERE notification_id = ?''', ('sent', notification_id))
-    conn.commit()
-    conn.close()
-
-# =================== ANALYTICS ===================
-
+# --- Admin Functions ---
 def get_admin_dashboard_stats():
-    """Get dashboard statistics for admin"""
     conn = get_db()
     c = conn.cursor()
-    
-    stats = {}
-    
-    # Total orders
-    c.execute('SELECT COUNT(*) as count FROM orders')
-    stats['total_orders'] = c.fetchone()['count']
-    
-    # Orders by status
-    c.execute('''SELECT status, COUNT(*) as count FROM orders GROUP BY status''')
-    stats['orders_by_status'] = {row['status']: row['count'] for row in c.fetchall()}
-    
-    # Total revenue
-    c.execute('SELECT SUM(total_fare) as revenue FROM orders WHERE status != ?', ('cancelled',))
-    stats['total_revenue'] = c.fetchone()['revenue'] or 0
-    
-    # Average rating
-    c.execute('SELECT AVG(rating) as avg_rating FROM orders WHERE rating IS NOT NULL')
-    stats['average_rating'] = c.fetchone()['avg_rating'] or 0
-    
-    # Total users
-    c.execute('SELECT COUNT(*) as count FROM users')
-    stats['total_users'] = c.fetchone()['count']
-    
-    # Premium users
-    c.execute('SELECT COUNT(*) as count FROM users WHERE is_premium = 1')
-    stats['premium_users'] = c.fetchone()['count']
-    
-    conn.close()
-    return stats
+    try:
+        c.execute('SELECT COUNT(*) FROM users')
+        total_users = c.fetchone()[0]
+        
+        c.execute('SELECT COUNT(*) FROM orders WHERE status = "completed"')
+        completed_orders = c.fetchone()[0]
+        
+        c.execute('SELECT SUM(booked_seats) FROM transit_capacity')
+        total_booked_seats = c.fetchone()[0] or 0
+        
+        # Example network capacity usage (simplified)
+        network_capacity_usage = {
+            'Red_Line': '78%',
+            'Green_Line': '65%',
+            'Blue_Line': '82%'
+        }
+        
+        return {
+            "total_users": total_users,
+            "completed_orders": completed_orders,
+            "total_booked_seats": total_booked_seats,
+            "network_capacity_usage": network_capacity_usage
+        }
+    finally:
+        conn.close()
 
-def get_top_routes():
-    """Get most popular routes"""
+def get_top_routes(limit=5):
     conn = get_db()
     c = conn.cursor()
-    
-    c.execute('''SELECT source, destination, COUNT(*) as bookings FROM orders 
-                 WHERE status != 'cancelled' GROUP BY source, destination 
-                 ORDER BY bookings DESC LIMIT 10''')
-    
-    routes = [dict(row) for row in c.fetchall()]
-    conn.close()
-    
-    return routes
+    try:
+        # This is a simplified approach. A real implementation would parse trip_plan JSON
+        # to extract individual route segments and count them.
+        c.execute('''
+            SELECT source, destination, COUNT(*) as count
+            FROM orders
+            GROUP BY source, destination
+            ORDER BY count DESC
+            LIMIT ?
+        ''', (limit,))
+        return [dict(row) for row in c.fetchall()]
+    finally:
+        conn.close()
 
-# Initialize database on import
-try:
-    init_db()
-except:
-    pass
+def get_pending_notifications():
+    conn = get_db()
+    c = conn.cursor()
+    try:
+        c.execute('SELECT * FROM notifications WHERE status = "pending" ORDER BY created_at ASC')
+        return [dict(row) for row in c.fetchall()]
+    finally:
+        conn.close()
+
+def queue_notification(order_id, user_id, event_type, notification_type, message):
+    conn = get_db()
+    c = conn.cursor()
+    try:
+        notification_id = f"NOTIF_{uuid.uuid4().hex[:12]}"
+        c.execute('''
+            INSERT INTO notifications (notification_id, order_id, user_id, type, event, message)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (notification_id, order_id, user_id, notification_type, event_type, message))
+        conn.commit()
+        return {"status": "success", "notification_id": notification_id}
+    except Exception as e:
+        conn.rollback()
+        return {"status": "error", "message": str(e)}
+    finally:
+        conn.close()
+
+# --- Transit Capacity ---
+def get_route_availability(route_code, service_time):
+    conn = get_db()
+    c = conn.cursor()
+    try:
+        # service_time is ignored for this simplified capacity model
+        c.execute('SELECT * FROM transit_capacity WHERE route_code = ?', (route_code,))
+        capacity = c.fetchone()
+        return dict(capacity) if capacity else None
+    finally:
+        conn.close()

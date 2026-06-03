@@ -70,7 +70,7 @@ MetroMind AI solves the commuting puzzle by combining:
 ┌────────────────────▼────────────────────────────────────────┐
 │                   FastAPI Backend                           │
 │                      Flask Backend                          │
-│  (GraphEngine, TransitData, RouteOptimization)              │
+│  (GraphEngine, TransitData, RouteOptimization, api_extended)│
 └────────────────────┬────────────────────────────────────────┘
                      │
 ┌────────────────────▼────────────────────────────────────────┐
@@ -100,12 +100,6 @@ venv\Scripts\activate  # Windows
 # Install dependencies
 pip install -r requirements.txt
 
-# Start FastAPI server
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
-```
-
-**Backend runs at:** `http://localhost:8000`
-**API Docs:** `http://localhost:8000/docs` (Swagger UI)
 # Start Flask server
 python main.py
 ```

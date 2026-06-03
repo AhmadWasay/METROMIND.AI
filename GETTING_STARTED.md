@@ -60,15 +60,13 @@ npm start
 
 ### 3. Test Everything
 
-1. Open http://localhost:3000 in browser
-2. Click "Login / Sign Up"
-3. Use demo credentials:
-   - Email: `demo@metromind.com`
-   - Password: `demo123`
-4. Plan a trip and book it
-5. Check your email for confirmation
-6. View "My Bookings" to track order
-7. Click Admin button to see admin panel
+1. Open http://localhost:3000 in your browser.
+2. Click "Login / Sign Up" and choose the "Sign Up" tab.
+3. Create a new account and verify it with the OTP sent to your email.
+4. Log in with your new account.
+5. Plan a trip and book it.
+6. Check your email for the booking confirmation.
+7. View your trip in the "My Bookings" section.
 
 ---
 
@@ -362,28 +360,6 @@ Database auto-creates on first run.
 ✅ User must have phone number
 ✅ Twilio/Africa's Talking must be configured in .env
 ✅ Account must have balance/credits
-```
-
----
-
-## 📦 Demo Credentials
-
-```
-Regular User:
-  Email: demo@metromind.com
-  Password: demo123
-
-Admin User:
-  Email: admin@metromind.com
-  Password: admin123
-
-Premium User (gets SMS):
-  Email: premium@metromind.com
-  Password: premium123
-
-Admin Token:
-  admin_secret
-  (change in .env for production)
 ```
 
 ---

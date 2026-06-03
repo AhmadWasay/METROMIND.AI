@@ -41,8 +41,17 @@ if not exist venv (
 echo Activating virtual environment...
 call venv\Scripts\activate.bat
 
+echo Checking for .env file...
+if not exist .env (
+    echo .env file not found. Creating from .env.example...
+    copy .env.example .env
+)
+
 echo Installing Python packages...
 pip install -r requirements.txt
+
+echo Initializing database and checking configuration...
+python setup.py
 
 echo Backend setup complete!
 cd ..
@@ -68,14 +77,13 @@ echo.
 echo To start the application:
 echo.
 echo 1. Terminal 1 - Backend:
-echo    cd backend
-echo    venv\Scripts\activate
-echo    uvicorn main:app --reload
+echo    (In Command Prompt)
+echo    cd backend ^&^& call venv\Scripts\activate.bat ^&^& python main.py
+echo.
+echo    (In PowerShell)
+echo    cd backend; .\venv\Scripts\Activate.ps1; python main.py
 echo.
 echo 2. Terminal 2 - Frontend:
-echo    cd frontend
-echo    npm start
-echo.
-echo Then open your browser to http://localhost:3000
+echo    cd frontend ^&^& npm start
 echo.
 pause

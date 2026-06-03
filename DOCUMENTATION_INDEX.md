@@ -18,14 +18,13 @@
 ```powershell
 # Terminal 1: Backend
 cd backend
-python -m venv venv
-venv\Scripts\activate
-pip install -r requirements.txt
-uvicorn main:app --reload
+call venv\Scripts\activate.bat  # On Windows Command Prompt
+# .\venv\Scripts\Activate.ps1 # On Windows PowerShell
+# source venv/bin/activate    # On macOS/Linux
+python main.py
 
 # Terminal 2: Frontend
 cd frontend
-npm install
 npm start
 ```
 

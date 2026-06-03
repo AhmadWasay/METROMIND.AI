@@ -424,22 +424,6 @@ Include these files:
 
 ---
 
-## 🔑 Key Credentials
-
-**Demo Account:**
-```
-Email: demo@metromind.com
-Password: demo123
-```
-
-**Admin Portal:**
-```
-URL: https://your-frontend.vercel.app/admin
-Token: admin_secret
-```
-
----
-
 ## 📞 Support Notes
 
 **If emails not arriving:**

@@ -64,12 +64,12 @@ venv\Scripts\activate  # Windows
 # Install dependencies
 pip install -r requirements.txt
 
-# Start FastAPI server
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+# Start Flask server
+python main.py
 ```
 
-**Backend runs at:** `http://localhost:8000`  
-**API Docs:** `http://localhost:8000/docs` (Swagger UI)
+**Backend runs at:** `http://localhost:5000`  
+**API Health Check:** `http://localhost:5000/api/health`
 
 ### Frontend Setup
 
@@ -247,9 +247,9 @@ Each segment includes:
    - Check if services are currently operating
 
 3. **Backend not responding**
-   - Verify backend is running on port 8000
+   - Verify backend is running on port 5000
    - Check terminal for error messages
-   - Restart backend with: `uvicorn main:app --reload`
+   - Restart backend with: `python main.py`
 
 4. **Styling issues**
    - Clear browser cache (Ctrl+Shift+Delete)
@@ -279,7 +279,7 @@ Potential features to add:
 
 For issues or questions:
 1. Check this guide first
-2. Review API documentation at `http://localhost:8000/docs`
+2. Test API endpoints using a REST client against `http://localhost:5000`
 3. Check browser console for frontend errors
 4. Review backend terminal for server errors
 

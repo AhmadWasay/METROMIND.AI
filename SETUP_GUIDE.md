@@ -59,8 +59,10 @@ cd backend
 python -m venv venv
 
 # Activate virtual environment
-# Windows:
-venv\Scripts\activate
+# Windows (Command Prompt):
+venv\Scripts\activate.bat
+# Windows (PowerShell):
+.\venv\Scripts\Activate.ps1
 # macOS/Linux:
 source venv/bin/activate
 
@@ -83,13 +85,14 @@ npm install
 
 ### Method 1: Manual Start (Two Terminals Required)
 
-#### Terminal 1 - Backend (FastAPI Server):
+#### Terminal 1 - Backend (Flask Server):
 ```bash
 cd backend
-venv\Scripts\activate        # Windows
+# On Windows Command Prompt: ..\venv\Scripts\activate.bat
+# On Windows PowerShell:     ..\venv\Scripts\Activate.ps1
 # source venv/bin/activate  # macOS/Linux
 
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+python main.py
 ```
 
 **Expected Output:**

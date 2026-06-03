@@ -63,10 +63,10 @@ Each trip now shows:
 ### Backend (Terminal 1)
 ```powershell
 cd backend
-python -m venv venv
-venv\Scripts\activate
-pip install -r requirements.txt
-uvicorn main:app --reload
+call venv\Scripts\activate.bat  # On Windows Command Prompt
+# .\venv\Scripts\Activate.ps1 # On Windows PowerShell
+# source venv/bin/activate    # On macOS/Linux
+python main.py
 ```
 
 ### Frontend (Terminal 2)
@@ -168,7 +168,7 @@ npm start
 ✓ Comprehensive endpoints  
 ✓ Full CORS support  
 ✓ Error handling  
-✓ Swagger documentation  
+✓ Health check endpoint  
 ✓ Response validation  
 
 ---
@@ -210,7 +210,7 @@ All features have been built and integrated:
 
 ### Immediate (To Run)
 1. Open 2 terminals
-2. Start backend with `uvicorn main:app --reload`
+2. Start backend with `python main.py`
 3. Start frontend with `npm start`
 4. Visit http://localhost:3000
 5. Try planning a journey!
@@ -219,7 +219,7 @@ All features have been built and integrated:
 1. Read ARCHITECTURE.md for technical details
 2. Check TRIP_PLANNER_GUIDE.md for feature explanation
 3. Review QUICK_TEST.md for testing procedures
-4. Explore API at http://localhost:8000/docs
+4. Explore API endpoints using a REST client against `http://localhost:5000`
 
 ### For Customization
 - Add more routes: Edit `transit_data.py`
@@ -237,7 +237,7 @@ A **production-ready** trip planner with:
 ✅ **Smart Algorithm** - Optimal route calculations  
 ✅ **Walking Info** - Accurate distances and times  
 ✅ **Beautiful UI** - Modern, responsive design  
-✅ **Full API** - 8 comprehensive endpoints  
+✅ **Full API** - 30+ comprehensive endpoints  
 ✅ **Complete Docs** - 3 detailed guides  
 ✅ **Test Guide** - Ready-to-run test suite  
 
@@ -296,9 +296,9 @@ A **production-ready** trip planner with:
 
 ## 📞 Support Resources
 
-- **API Docs**: http://localhost:8000/docs
+- **API Health**: http://localhost:5000/api/health
 - **Frontend Logs**: Browser DevTools → Console
-- **Backend Logs**: Terminal running uvicorn
+- **Backend Logs**: Terminal running `python main.py`
 - **Guides**: TRIP_PLANNER_GUIDE.md
 - **Architecture**: ARCHITECTURE.md
 - **Testing**: QUICK_TEST.md
@@ -343,9 +343,9 @@ Happy Commuting! 🚇🚌
 
 ---
 
-**Questions?** Check the documentation files or review the code comments.  
-**Ready to improve?** Read ARCHITECTURE.md for enhancement ideas.  
-**Need help?** All endpoints documented in Swagger UI at http://localhost:8000/docs
+**Questions?** Check the documentation files or review the code comments.
+**Ready to improve?** Read ARCHITECTURE.md for enhancement ideas.
+**Need help?** Review the API endpoints in the source code and test them.
 
 ---
 
