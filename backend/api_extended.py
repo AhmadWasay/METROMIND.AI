@@ -381,6 +381,17 @@ def start_order_endpoint(user_id, order_id):
         
         result = models.update_order_status(order_id, 'in_transit')
         
+        # Send "trip started" email notification
+        user = models.get_user(user_id)
+        if user:
+            notifications.send_status_update_email(
+                user['email'],
+                user['full_name'],
+                order_id,
+                'in_transit',
+                f"Your trip order {order_id} is now in transit."
+            )
+            
         models.queue_notification(
             order_id,
             user_id,
@@ -407,6 +418,17 @@ def complete_order_endpoint(user_id, order_id):
         
         result = models.update_order_status(order_id, 'completed')
         
+        # Send "trip completed" email notification
+        user = models.get_user(user_id)
+        if user:
+            notifications.send_status_update_email(
+                user['email'],
+                user['full_name'],
+                order_id,
+                'completed',
+                f"Your trip order {order_id} has been marked as completed. Thank you for riding with us!"
+            )
+            
         models.queue_notification(
             order_id,
             user_id,
