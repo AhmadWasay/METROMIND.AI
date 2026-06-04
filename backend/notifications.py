@@ -7,7 +7,9 @@ import twilio.rest
 import africastalking
 import json # For trip_plan in email
 
-load_dotenv()
+# Force python-dotenv to look in the exact backend directory
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 GMAIL_ADDRESS = os.getenv("GMAIL_ADDRESS")
 GMAIL_APP_PASSWORD = os.getenv("GMAIL_APP_PASSWORD")

@@ -1,5 +1,6 @@
 import sqlite3
 import uuid
+import os
 from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 import random
@@ -9,7 +10,9 @@ def generate_uuid():
     return str(uuid.uuid4())
 
 # --- Database Connection ---
-DATABASE_FILE = 'metromind.db'
+# Use absolute path so PythonAnywhere WSGI can find the database
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATABASE_FILE = os.path.join(BASE_DIR, 'metromind.db')
 
 def get_db():
     """Helper to get a database connection with row_factory for dict-like rows."""
