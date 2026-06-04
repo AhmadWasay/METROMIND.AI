@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './OrderManager.css';
 
-function OrderManager({ userId }) {
+function OrderManager({ userId, onReuseRoute }) {
   const [orders, setOrders] = useState([]);
   const [activeTab, setActiveTab] = useState('all');
   const [loading, setLoading] = useState(false);
@@ -50,6 +50,21 @@ function OrderManager({ userId }) {
     }
   };
 
+  const handleStartTrip = async (orderId) => {
+    try {
+      await axios.post(
+        `${API_BASE}/api/orders/${orderId}/start`,
+        {},
+        { headers: { 'X-User-ID': userId } }
+      );
+      
+      alert('🚀 Trip started! Have a safe journey.');
+      fetchOrders();
+    } catch (err) {
+      alert('Failed to start trip: ' + err.response?.data?.error);
+    }
+  };
+
   const handleRateOrder = async () => {
     try {
       await axios.post(
@@ -93,46 +108,47 @@ function OrderManager({ userId }) {
 
   return (
     <div className="order-manager">
-      <div className="order-header">
-        <h2>📦 My Trip Bookings</h2>
-        <p className="order-subtitle">View and manage your travel bookings</p>
+      <div style={{ marginBottom: '48px' }}>
+        <div className="s-label">MY BOOKINGS</div>
+        <h2 className="s-h2">Manage Your Trips</h2>
+        <p className="s-sub">View and manage your travel bookings</p>
       </div>
 
       {error && <div className="order-error">{error}</div>}
 
-      <div className="order-tabs">
+      <div className="tab-navigation" style={{ marginBottom: '32px', flexWrap: 'wrap' }}>
         <button 
-          className={`order-tab ${activeTab === 'all' ? 'active' : ''}`}
+          className={`tab-btn ${activeTab === 'all' ? 'active' : ''}`}
           onClick={() => setActiveTab('all')}
         >
           All ({orders.length})
         </button>
         <button 
-          className={`order-tab ${activeTab === 'pending' ? 'active' : ''}`}
+          className={`tab-btn ${activeTab === 'pending' ? 'active' : ''}`}
           onClick={() => setActiveTab('pending')}
         >
           Pending
         </button>
         <button 
-          className={`order-tab ${activeTab === 'confirmed' ? 'active' : ''}`}
+          className={`tab-btn ${activeTab === 'confirmed' ? 'active' : ''}`}
           onClick={() => setActiveTab('confirmed')}
         >
           Confirmed
         </button>
         <button 
-          className={`order-tab ${activeTab === 'in_transit' ? 'active' : ''}`}
+          className={`tab-btn ${activeTab === 'in_transit' ? 'active' : ''}`}
           onClick={() => setActiveTab('in_transit')}
         >
           In Transit
         </button>
         <button 
-          className={`order-tab ${activeTab === 'completed' ? 'active' : ''}`}
+          className={`tab-btn ${activeTab === 'completed' ? 'active' : ''}`}
           onClick={() => setActiveTab('completed')}
         >
           Completed
         </button>
         <button 
-          className={`order-tab ${activeTab === 'cancelled' ? 'active' : ''}`}
+          className={`tab-btn ${activeTab === 'cancelled' ? 'active' : ''}`}
           onClick={() => setActiveTab('cancelled')}
         >
           Cancelled
@@ -149,20 +165,20 @@ function OrderManager({ userId }) {
       ) : (
         <div className="orders-list">
           {filteredOrders.map((order) => (
-            <div key={order.order_id} className={`order-card status-${order.status}`}>
-              <div className="order-card-header">
-                <div className="order-info">
-                  <h3>{order.source} → {order.destination}</h3>
-                  <p className="order-id">Order: {order.order_id.slice(0, 12)}...</p>
+            <div key={order.order_id} className="card" style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '16px' }}>
+              <div className="order-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div className="order-info" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <h3 style={{ fontSize: '20px', margin: 0, fontFamily: 'Syne, sans-serif' }}>{order.source} → {order.destination}</h3>
+                  <p className="order-id" style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '12px', color: 'var(--color-accent2)', margin: 0 }}>Order: {order.order_id.slice(0, 12)}...</p>
                 </div>
                 <div className="order-status">
-                  <span className={`status-badge status-${order.status}`}>
+                  <span className={`status-badge ${order.status}`}>
                     {order.status.toUpperCase()}
                   </span>
                 </div>
               </div>
 
-              <div className="order-details">
+              <div className="order-details" style={{ display: 'flex', gap: '24px', color: 'var(--color-muted)', fontSize: '14px' }}>
                 <div className="detail">
                   <span className="label">Trip Date:</span>
                   <span className="value">{order.trip_date}</span>
@@ -185,6 +201,15 @@ function OrderManager({ userId }) {
               )}
 
               <div className="order-actions">
+                {(order.status === 'pending' || order.status === 'confirmed') && (
+                  <button 
+                    className="action-btn btn-primary"
+                    onClick={() => handleStartTrip(order.order_id)}
+                  >
+                    🚀 Start Trip
+                  </button>
+                )}
+
                 {order.status === 'pending' && (
                   <button 
                     className="action-btn btn-danger"
@@ -215,6 +240,15 @@ function OrderManager({ userId }) {
                   </button>
                 )}
 
+                {(order.status === 'completed' || order.status === 'cancelled') && (
+                  <button 
+                    className="action-btn btn-primary"
+                    onClick={() => onReuseRoute && onReuseRoute(order.source, order.destination)}
+                  >
+                    🔄 Book Again
+                  </button>
+                )}
+
                 <button 
                   className="action-btn btn-secondary"
                   onClick={() => handleCheckStatus(order.order_id)}
@@ -230,41 +264,41 @@ function OrderManager({ userId }) {
       {/* Order Detail Modal */}
       {selectedOrder && !showRatingModal && (
         <div className="modal-overlay" onClick={() => setSelectedOrder(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="close-btn" onClick={() => setSelectedOrder(null)}>×</button>
+          <div className="modal-panel" onClick={(e) => e.stopPropagation()}>
+            <button className="btn-ghost" style={{ position: 'absolute', top: '16px', right: '16px', padding: '8px 12px' }} onClick={() => setSelectedOrder(null)}>✕</button>
             
-            <h2>Trip Details</h2>
+            <h2 className="s-h2" style={{ fontSize: '28px' }}>Trip Details</h2>
             
-            <div className="modal-section">
+            <div className="modal-section" style={{ marginBottom: '16px' }}>
               <h3>Journey Route</h3>
               <p><strong>From:</strong> {selectedOrder.source}</p>
               <p><strong>To:</strong> {selectedOrder.destination}</p>
             </div>
 
-            <div className="modal-section">
+            <div className="modal-section" style={{ marginBottom: '16px' }}>
               <h3>Current Status</h3>
               <p><strong>Status:</strong> {selectedOrder.current_status || selectedOrder.status}</p>
               <p><strong>Progress:</strong> {selectedOrder.progress_percentage}%</p>
-              <div className="progress-bar">
-                <div className="progress-fill" style={{ width: `${selectedOrder.progress_percentage}%` }}></div>
+              <div className="progress-bar" style={{ height: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', marginTop: '8px', overflow: 'hidden' }}>
+                <div className="progress-fill" style={{ height: '100%', background: 'var(--color-accent)', width: `${selectedOrder.progress_percentage}%`, transition: 'width 0.5s' }}></div>
               </div>
             </div>
 
             {selectedOrder.current_location && (
-              <div className="modal-section">
+              <div className="modal-section" style={{ marginBottom: '16px' }}>
                 <h3>Current Location</h3>
                 <p><strong>Location:</strong> {selectedOrder.current_location.description}</p>
                 <p><strong>Coordinates:</strong> {selectedOrder.current_location.lat}, {selectedOrder.current_location.lng}</p>
               </div>
             )}
 
-            <div className="modal-section">
+            <div className="modal-section" style={{ marginBottom: '24px' }}>
               <h3>Estimated Arrival</h3>
-              <p className="big-text">{selectedOrder.estimated_arrival}</p>
+              <p className="big-text" style={{ fontSize: '24px', fontFamily: 'Syne, sans-serif', color: 'var(--color-accent2)', margin: '8px 0' }}>{selectedOrder.estimated_arrival}</p>
               <p>Next Milestone: {selectedOrder.next_milestone || 'On Track'}</p>
             </div>
 
-            <button className="modal-close-btn" onClick={() => setSelectedOrder(null)}>
+            <button className="btn-ghost" style={{ width: '100%' }} onClick={() => setSelectedOrder(null)}>
               Close
             </button>
           </div>
@@ -274,31 +308,34 @@ function OrderManager({ userId }) {
       {/* Rating Modal */}
       {showRatingModal && selectedOrder && (
         <div className="modal-overlay" onClick={() => setShowRatingModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="close-btn" onClick={() => setShowRatingModal(false)}>×</button>
+          <div className="modal-panel" onClick={(e) => e.stopPropagation()}>
+            <button className="btn-ghost" style={{ position: 'absolute', top: '16px', right: '16px', padding: '8px 12px' }} onClick={() => setShowRatingModal(false)}>✕</button>
             
-            <h2>Rate Your Trip</h2>
-            <p className="rating-subtitle">{selectedOrder.source} → {selectedOrder.destination}</p>
+            <h2 className="s-h2" style={{ fontSize: '28px' }}>Rate Your Trip</h2>
+            <p className="s-sub" style={{ marginBottom: '24px' }}>{selectedOrder.source} → {selectedOrder.destination}</p>
 
             <div className="rating-section">
               <label>How would you rate this trip?</label>
-              <div className="star-rating">
+              <div className="star-rating" style={{ display: 'flex', gap: '8px', margin: '12px 0' }}>
                 {[1, 2, 3, 4, 5].map(star => (
                   <button
                     key={star}
-                    className={`star-btn ${star <= ratingData.rating ? 'active' : ''}`}
+                    className={`btn-ghost ${star <= ratingData.rating ? 'active' : ''}`}
+                    style={{ padding: '8px', borderColor: star <= ratingData.rating ? 'var(--color-accent)' : '' }}
                     onClick={() => setRatingData({ ...ratingData, rating: star })}
                   >
                     ⭐
                   </button>
                 ))}
               </div>
-              <p className="rating-value">{ratingData.rating} out of 5 stars</p>
+              <p className="rating-value" style={{ fontSize: '14px', color: 'var(--color-muted)' }}>{ratingData.rating} out of 5 stars</p>
             </div>
 
-            <div className="review-section">
+            <div className="review-section" style={{ marginTop: '24px', marginBottom: '24px' }}>
               <label>Additional Review (Optional)</label>
               <textarea
+                className="input-field"
+                style={{ marginTop: '8px' }}
                 value={ratingData.review}
                 onChange={(e) => setRatingData({ ...ratingData, review: e.target.value })}
                 placeholder="Share your experience..."
@@ -306,11 +343,11 @@ function OrderManager({ userId }) {
               />
             </div>
 
-            <div className="modal-actions">
+            <div className="modal-actions" style={{ display: 'flex', gap: '12px' }}>
               <button className="btn-primary" onClick={handleRateOrder}>
                 Submit Rating
               </button>
-              <button className="btn-secondary" onClick={() => setShowRatingModal(false)}>
+              <button className="btn-ghost" onClick={() => setShowRatingModal(false)}>
                 Cancel
               </button>
             </div>

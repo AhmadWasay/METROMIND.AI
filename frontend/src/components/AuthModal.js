@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import './AuthModal.css';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
@@ -120,72 +119,97 @@ const AuthModal = ({ onClose, onAuthSuccess }) => {
     };
 
     const renderLogin = () => (
-        <form onSubmit={handleLogin}>
-            <h2>Login</h2>
-            <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-            <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-            <div className="forgot-password-link">
-                <span onClick={() => setView('forgot_password_email')}>
+        <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <h2 className="s-h2" style={{ fontSize: '28px', marginBottom: '8px' }}>Login</h2>
+            <input className="input-field" type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+            <input className="input-field" type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+            
+            <div style={{ textAlign: 'right' }}>
+                <button type="button" style={{ background: 'none', border: 'none', color: 'var(--color-muted)', fontSize: '13px', padding: 0, cursor: 'pointer' }} onClick={() => setView('forgot_password_email')}>
                     Forgot Password?
-                </span>
+                </button>
             </div>
-            <button type="submit" disabled={isLoading}>{isLoading ? 'Logging in...' : 'Login'}</button>
-            <p>Don't have an account? <span onClick={() => setView('signup')}>Sign Up</span></p>
+            
+            <button className="btn-primary" type="submit" disabled={isLoading} style={{ marginTop: '8px' }}>{isLoading ? 'Logging in...' : 'Login'}</button>
+            
+            <div style={{ marginTop: '24px', textAlign: 'center' }}>
+                <span style={{ color: 'var(--color-muted)', fontSize: '14px' }}>Don't have an account? </span>
+                <button type="button" className="btn-ghost" style={{ padding: '4px 12px', fontSize: '14px', border: 'none', color: 'var(--color-accent)' }} onClick={() => setView('signup')}>Sign up</button>
+            </div>
         </form>
     );
 
     const renderSignup = () => (
-        <form onSubmit={handleSignup}>
-            <h2>Sign Up</h2>
-            <input type="text" placeholder="Full Name" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
-            <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-            <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-            <input type="tel" placeholder="Phone Number (Optional)" value={phone} onChange={(e) => setPhone(e.target.value)} />
-            <button type="submit" disabled={isLoading}>{isLoading ? 'Signing up...' : 'Sign Up'}</button>
-            <p>Already have an account? <span onClick={() => setView('login')}>Login</span></p>
+        <form onSubmit={handleSignup} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <h2 className="s-h2" style={{ fontSize: '28px', marginBottom: '8px' }}>Sign Up</h2>
+            <input className="input-field" type="text" placeholder="Full Name" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
+            <input className="input-field" type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+            <input className="input-field" type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+            <input className="input-field" type="tel" placeholder="Phone Number (Optional)" value={phone} onChange={(e) => setPhone(e.target.value)} />
+            
+            <button className="btn-primary" type="submit" disabled={isLoading} style={{ marginTop: '8px' }}>{isLoading ? 'Signing up...' : 'Sign Up'}</button>
+            
+            <div style={{ marginTop: '24px', textAlign: 'center' }}>
+                <span style={{ color: 'var(--color-muted)', fontSize: '14px' }}>Already have an account? </span>
+                <button type="button" className="btn-ghost" style={{ padding: '4px 12px', fontSize: '14px', border: 'none', color: 'var(--color-accent)' }} onClick={() => setView('login')}>Login</button>
+            </div>
         </form>
     );
 
     const renderOtp = () => (
-        <form onSubmit={handleVerifyOtp}>
-            <h2>Verify Your Account</h2>
-            <p>An OTP has been sent to {email}. Please enter it below.</p>
+        <form onSubmit={handleVerifyOtp} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <h2 className="s-h2" style={{ fontSize: '28px', marginBottom: '8px' }}>Verify Account</h2>
+            <p className="s-sub" style={{ marginBottom: '16px', fontSize: '14px' }}>An OTP has been sent to {email}.</p>
             <input
+                className="input-field"
                 type="text"
                 placeholder="Enter 6-digit OTP"
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
                 required
                 maxLength="6"
+                style={{ letterSpacing: '4px', textAlign: 'center', fontSize: '20px', fontFamily: 'JetBrains Mono, monospace' }}
             />
-            <button type="submit" disabled={isLoading}>{isLoading ? 'Verifying...' : 'Verify'}</button>
-            <p>Entered the wrong email? <span onClick={() => setView('signup')}>Go Back</span></p>
+            <button className="btn-primary" type="submit" disabled={isLoading} style={{ marginTop: '8px' }}>{isLoading ? 'Verifying...' : 'Verify'}</button>
+            
+            <div style={{ marginTop: '24px', textAlign: 'center' }}>
+                <span style={{ color: 'var(--color-muted)', fontSize: '14px' }}>Wrong email? </span>
+                <button type="button" className="btn-ghost" style={{ padding: '4px 12px', fontSize: '14px', border: 'none', color: 'var(--color-accent)' }} onClick={() => setView('signup')}>Go Back</button>
+            </div>
         </form>
     );
 
     const renderForgotPasswordEmail = () => (
-        <form onSubmit={handleForgotPasswordInitiate}>
-            <h2>Forgot Password</h2>
-            <p>Enter your email to receive a login code.</p>
-            <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-            <button type="submit" disabled={isLoading}>{isLoading ? 'Sending...' : 'Send Code'}</button>
-            <p>Remember your password? <span onClick={() => setView('login')}>Login</span></p>
+        <form onSubmit={handleForgotPasswordInitiate} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <h2 className="s-h2" style={{ fontSize: '28px', marginBottom: '8px' }}>Forgot Password</h2>
+            <p className="s-sub" style={{ marginBottom: '16px', fontSize: '14px' }}>Enter your email to receive a login code.</p>
+            <input className="input-field" type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+            
+            <button className="btn-primary" type="submit" disabled={isLoading} style={{ marginTop: '8px' }}>{isLoading ? 'Sending...' : 'Send Code'}</button>
+            
+            <div style={{ marginTop: '24px', textAlign: 'center' }}>
+                <span style={{ color: 'var(--color-muted)', fontSize: '14px' }}>Remember your password? </span>
+                <button type="button" className="btn-ghost" style={{ padding: '4px 12px', fontSize: '14px', border: 'none', color: 'var(--color-accent)' }} onClick={() => setView('login')}>Login</button>
+            </div>
         </form>
     );
 
     const renderResetPassword = () => (
-        <form onSubmit={handleResetPassword}>
-            <h2>Reset Your Password</h2>
-            <p>An OTP has been sent to {email}.</p>
+        <form onSubmit={handleResetPassword} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <h2 className="s-h2" style={{ fontSize: '28px', marginBottom: '8px' }}>Reset Password</h2>
+            <p className="s-sub" style={{ marginBottom: '16px', fontSize: '14px' }}>An OTP has been sent to {email}.</p>
             <input
+                className="input-field"
                 type="text"
                 placeholder="Enter 6-digit OTP"
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
                 required
                 maxLength="6"
+                style={{ letterSpacing: '4px', textAlign: 'center', fontSize: '20px', fontFamily: 'JetBrains Mono, monospace' }}
             />
             <input 
+                className="input-field"
                 type="password" 
                 placeholder="New Password" 
                 value={newPassword} 
@@ -193,23 +217,29 @@ const AuthModal = ({ onClose, onAuthSuccess }) => {
                 required 
             />
             <input 
+                className="input-field"
                 type="password" 
                 placeholder="Confirm New Password" 
                 value={confirmPassword} 
                 onChange={(e) => setConfirmPassword(e.target.value)} 
                 required 
             />
-            <button type="submit" disabled={isLoading}>{isLoading ? 'Resetting...' : 'Reset Password'}</button>
-            <p>Didn't get a code? <span onClick={() => setView('forgot_password_email')}>Go Back</span></p>
+            
+            <button className="btn-primary" type="submit" disabled={isLoading} style={{ marginTop: '8px' }}>{isLoading ? 'Resetting...' : 'Reset Password'}</button>
+            
+            <div style={{ marginTop: '24px', textAlign: 'center' }}>
+                <span style={{ color: 'var(--color-muted)', fontSize: '14px' }}>Didn't get a code? </span>
+                <button type="button" className="btn-ghost" style={{ padding: '4px 12px', fontSize: '14px', border: 'none', color: 'var(--color-accent)' }} onClick={() => setView('forgot_password_email')}>Go Back</button>
+            </div>
         </form>
     );
 
     return (
-        <div className="modal-backdrop" onClick={onClose}>
-            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                <button className="close-button" onClick={onClose}>&times;</button>
-                {error && <p className="error-message">{error}</p>}
-                {message && <p className="info-message">{message}</p>}
+        <div className="modal-overlay" onClick={onClose}>
+            <div className="modal-panel" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '420px', padding: '36px' }}>
+                <button className="btn-ghost" style={{ position: 'absolute', top: '16px', right: '16px', padding: '8px 12px' }} onClick={onClose}>✕</button>
+                {error && <div style={{ color: 'var(--color-red)', marginBottom: '16px', fontSize: '14px', textAlign: 'center' }}>{error}</div>}
+                {message && <div style={{ color: 'var(--color-accent2)', marginBottom: '16px', fontSize: '14px', textAlign: 'center' }}>{message}</div>}
                 {view === 'login' && renderLogin()}
                 {view === 'signup' && renderSignup()}
                 {view === 'otp' && renderOtp()}

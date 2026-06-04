@@ -370,6 +370,7 @@ def get_order(order_id):
         if order:
             order_dict = dict(order)
             order_dict['trip_plan'] = json.loads(order_dict['trip_plan']) # Deserialize JSON
+            order_dict['total_fare'] = order_dict['trip_plan'].get('estimated_cost', 0)
             return order_dict
         return None
     finally:
@@ -386,6 +387,7 @@ def get_user_orders(user_id, status_filter=None):
         orders = [dict(row) for row in c.fetchall()]
         for order in orders:
             order['trip_plan'] = json.loads(order['trip_plan'])
+            order['total_fare'] = order['trip_plan'].get('estimated_cost', 0)
         return orders
     finally:
         conn.close()

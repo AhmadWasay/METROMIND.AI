@@ -364,6 +364,35 @@ def cancel_order_endpoint(user_id, order_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@api.route("/api/orders/<order_id>/start", methods=["POST"])
+@token_required
+def start_order_endpoint(user_id, order_id):
+    """User endpoint to start a booked trip"""
+    try:
+        order = models.get_order(order_id)
+        if not order:
+            return jsonify({"error": "Order not found"}), 404
+        
+        if order['user_id'] != user_id:
+            return jsonify({"error": "Unauthorized"}), 403
+        
+        if order['status'] not in ['pending', 'confirmed']:
+            return jsonify({"error": "Trip cannot be started from its current status"}), 400
+        
+        result = models.update_order_status(order_id, 'in_transit')
+        
+        models.queue_notification(
+            order_id,
+            user_id,
+            'trip_started',
+            'email',
+            f"Your trip order {order_id} is now in transit."
+        )
+        
+        return jsonify({"status": "success", "message": "Trip started successfully!"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @api.route("/api/orders/<order_id>/rate", methods=["POST"])
 @token_required
 def rate_order_endpoint(user_id, order_id):

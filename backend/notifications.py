@@ -75,6 +75,31 @@ def send_otp_email(recipient_email: str, otp: str):
     return _send_email(recipient_email, subject, text, html)
 
 def send_order_confirmation_email(recipient_email, full_name, order_id, trip_plan, total_fare, trip_date):
+    # Format the trip details to be human-readable instead of raw JSON
+    route_name = trip_plan.get('name', 'Your Route')
+    route_desc = trip_plan.get('description', '')
+    est_time = trip_plan.get('estimated_time_minutes', 0)
+    
+    # Build a plain text list of segments
+    segments_text = ""
+    # Build an HTML list of segments
+    segments_html = "<ul>"
+    
+    for seg in trip_plan.get('journey_segments', []):
+        line = seg.get('line') or seg.get('route') or seg.get('type', 'transit').capitalize()
+        segments_text += f"  - {seg.get('from')} to {seg.get('to')} via {line} ({seg.get('time_mins')} mins)\n"
+        segments_html += f"<li><strong>{seg.get('from')}</strong> to <strong>{seg.get('to')}</strong> via {line} ({seg.get('time_mins')} mins)</li>"
+        
+    segments_html += "</ul>"
+    
+    trip_details_html = f"""
+    <p><strong>Route:</strong> {route_name}<br>
+    <strong>Time:</strong> {est_time} mins<br>
+    <strong>Details:</strong> {route_desc}</p>
+    <p><strong>Segments:</strong></p>
+    {segments_html}
+    """
+
     subject = f"MetroMind AI: Your Trip Booking #{order_id} is Confirmed!"
     text = f"""
     Dear {full_name},
@@ -86,7 +111,12 @@ def send_order_confirmation_email(recipient_email, full_name, order_id, trip_pla
     Total Fare: PKR {total_fare}
 
     Trip Details:
-    {json.dumps(trip_plan, indent=2)}
+    Route: {route_name}
+    Time: {est_time} mins
+    Details: {route_desc}
+    
+    Segments:
+{segments_text}
 
     Thank you for choosing MetroMind AI!
 
@@ -101,8 +131,8 @@ def send_order_confirmation_email(recipient_email, full_name, order_id, trip_pla
             <p><strong>Order ID:</strong> {order_id}</p>
             <p><strong>Trip Date:</strong> {trip_date}</p>
             <p><strong>Total Fare:</strong> PKR {total_fare}</p>
-            <p><strong>Trip Details:</strong></p>
-            <pre>{json.dumps(trip_plan, indent=2)}</pre>
+            <h3>Trip Details:</h3>
+            {trip_details_html}
             <p>Thank you for choosing MetroMind AI!</p>
             <p>Best regards,<br>The MetroMind AI Team</p>
         </body>
