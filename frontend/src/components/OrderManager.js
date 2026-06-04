@@ -65,6 +65,23 @@ function OrderManager({ userId, onReuseRoute }) {
     }
   };
 
+  const handleCompleteTrip = async (orderId) => {
+    if (window.confirm('Are you sure you want to complete this ride?')) {
+      try {
+        await axios.post(
+          `${API_BASE}/api/orders/${orderId}/complete`,
+          {},
+          { headers: { 'X-User-ID': userId } }
+        );
+        
+        alert('🏁 Ride completed successfully!');
+        fetchOrders();
+      } catch (err) {
+        alert('Failed to complete ride: ' + err.response?.data?.error);
+      }
+    }
+  };
+
   const handleRateOrder = async () => {
     try {
       await axios.post(
@@ -166,14 +183,14 @@ function OrderManager({ userId, onReuseRoute }) {
         <div className="orders-list">
           {filteredOrders.map((order) => (
             <div key={order.order_id} className="card" style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '16px' }}>
-              <div className="order-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div className="order-info" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <h3 style={{ fontSize: '20px', margin: 0, fontFamily: 'Syne, sans-serif' }}>{order.source} → {order.destination}</h3>
+              <div className="order-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
+                <div className="order-info" style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: '1 1 auto', minWidth: '0' }}>
+                  <h3 style={{ fontSize: '20px', margin: 0, fontFamily: 'Syne, sans-serif', wordWrap: 'break-word' }}>{order.source} → {order.destination}</h3>
                   <p className="order-id" style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '12px', color: 'var(--color-accent2)', margin: 0 }}>Order: {order.order_id.slice(0, 12)}...</p>
                 </div>
                 <div className="order-status">
-                  <span className={`status-badge ${order.status}`}>
-                    {order.status.toUpperCase()}
+                  <span className={`status-badge status-${order.status}`}>
+                    {order.status.toUpperCase().replace('_', ' ')}
                   </span>
                 </div>
               </div>
@@ -218,6 +235,15 @@ function OrderManager({ userId, onReuseRoute }) {
                     ✕ Cancel Booking
                   </button>
                 )}
+
+                {order.status === 'in_transit' && (
+                  <button 
+                    className="action-btn btn-primary"
+                    onClick={() => handleCompleteTrip(order.order_id)}
+                  >
+                    🏁 Complete Ride
+                  </button>
+                )}
                 
                 {order.status === 'completed' && !order.rating && (
                   <button 
@@ -252,22 +278,49 @@ function OrderManager({ userId, onReuseRoute }) {
         </div>
       )}
 
-      {/* Order Detail Modal */}
-      {selectedOrder && !showRatingModal && (
-        <div className="modal-overlay" onClick={() => setSelectedOrder(null)}>
-          <div className="modal-panel" onClick={(e) => e.stopPropagation()} style={{ backgroundColor: '#0a0a0a', color: '#ffffff', border: '1px solid #333' }}>
-            <button className="btn-ghost" style={{ position: 'absolute', top: '16px', right: '16px', padding: '8px 12px', color: '#fff' }} onClick={() => setSelectedOrder(null)}>✕</button>
-            
-            <h2 className="s-h2" style={{ fontSize: '28px', color: '#ffffff' }}>Trip Details</h2>
-            
-            <div className="modal-section" style={{ marginBottom: '16px' }}>
-              <h3 style={{ color: '#aaa', fontSize: '18px', marginBottom: '8px' }}>Journey Summary</h3>
-              <p style={{ margin: '4px 0' }}><strong>From:</strong> {selectedOrder.source}</p>
-              <p style={{ margin: '4px 0' }}><strong>To:</strong> {selectedOrder.destination}</p>
-              <p style={{ margin: '4px 0' }}><strong>Status:</strong> {selectedOrder.status ? selectedOrder.status.toUpperCase() : 'N/A'}</p>
-              <p style={{ margin: '4px 0' }}><strong>Fare:</strong> Rs. {selectedOrder.total_fare}</p>
-              <p style={{ margin: '4px 0' }}><strong>Date:</strong> {selectedOrder.trip_date}</p>
-            </div>
+     {/* Order Detail Modal */}
+{selectedOrder && !showRatingModal && (
+  <div className="modal-overlay" onClick={() => setSelectedOrder(null)}>
+    <div 
+      className="modal-panel" 
+      onClick={(e) => e.stopPropagation()} 
+      style={{ 
+        backgroundColor: '#000000', 
+        color: '#ffffff', 
+        border: '3px solid #ffffff',
+        boxShadow: '6px 6px 0px rgba(255, 255, 255, 0.2)'
+      }}
+    >
+      <button 
+        className="btn-ghost" 
+        style={{ 
+          position: 'absolute', 
+          top: '16px', 
+          right: '16px', 
+          padding: '8px 12px', 
+          color: '#ffffff',
+          border: '2px solid #ffffff',
+          fontWeight: 'bold'
+        }} 
+        onClick={() => setSelectedOrder(null)}
+      >
+        ✕
+      </button>
+      
+      <h2 className="s-h2" style={{ fontSize: '28px', color: '#ffffff', fontWeight: '900', textTransform: 'uppercase' }}>
+        Trip Details
+      </h2>
+      
+      <div className="modal-section" style={{ marginBottom: '16px', borderBottom: '2px solid #ffffff', paddingBottom: '16px' }}>
+        <h3 style={{ color: '#ffffff', fontSize: '18px', marginBottom: '12px', fontWeight: '800', textTransform: 'uppercase' }}>
+          Journey Summary
+        </h3>
+        <p style={{ margin: '8px 0', color: '#ffffff', fontSize: '15px' }}><strong>From:</strong> {selectedOrder.source}</p>
+        <p style={{ margin: '8px 0', color: '#ffffff', fontSize: '15px' }}><strong>To:</strong> {selectedOrder.destination}</p>
+        <p style={{ margin: '8px 0', color: '#ffffff', fontSize: '15px' }}><strong>Status:</strong> {selectedOrder.status ? selectedOrder.status.toUpperCase() : 'N/A'}</p>
+        <p style={{ margin: '8px 0', color: '#ffffff', fontSize: '15px' }}><strong>Fare:</strong> Rs. {selectedOrder.total_fare}</p>
+        <p style={{ margin: '8px 0', color: '#ffffff', fontSize: '15px' }}><strong>Date:</strong> {selectedOrder.trip_date}</p>
+      </div>
 
             {(() => {
               let plan = selectedOrder.trip_plan;

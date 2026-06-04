@@ -1,10 +1,10 @@
-/* Order Manager Styles - Black & White Theme */
+/* Order Manager Styles - Dark Mode Brutalist Theme */
 
 .order-manager {
   padding: 20px;
-  background-color: #000000; /* Page background made black */
+  background-color: #000000;
   min-height: 100vh;
-  color: #ffffff; /* Default text made white */
+  color: #ffffff;
 }
 
 /* Make sure your React header elements are white on the black background */
@@ -15,15 +15,15 @@
 }
 
 .order-error {
-  background-color: #ffebee;
-  color: #c62828;
+  background-color: #110000;
+  color: #ff4444;
   padding: 15px;
   border-radius: 8px;
   margin-bottom: 20px;
-  border-left: 4px solid #c62828;
+  border: 2px solid #ff4444;
 }
 
-/* Order Tabs (Fixed class name to match React's 'tab-btn') */
+/* Order Tabs */
 .tab-navigation {
   display: flex;
   gap: 10px;
@@ -38,7 +38,7 @@
   font-size: 14px;
   font-weight: 600;
   color: #ffffff;
-  transition: all 0.3s;
+  transition: all 0.2s ease;
 }
 
 .tab-btn:hover {
@@ -48,6 +48,7 @@
 .tab-btn.active {
   background-color: #ffffff;
   color: #000000;
+  box-shadow: 2px 2px 0px #ffffff;
 }
 
 /* Loading & Empty States */
@@ -55,8 +56,8 @@
 .empty-orders {
   text-align: center;
   padding: 60px 20px;
-  background-color: #111111;
-  border: 1px dashed #444;
+  background-color: #000000;
+  border: 2px dashed #ffffff;
   border-radius: 8px;
   color: #ffffff;
 }
@@ -64,6 +65,7 @@
 .empty-orders p {
   margin: 10px 0;
   font-size: 16px;
+  font-weight: bold;
 }
 
 .empty-subtitle {
@@ -74,24 +76,23 @@
 /* Orders List */
 .orders-list {
   display: grid;
-  gap: 20px;
+  gap: 24px;
   grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
 }
 
-/* Cards (Fixed class name to match React's 'card') */
+/* Cards - Now Black with White Borders */
 .card {
-  background: #ffffff; /* White card */
+  background: #000000;
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
   transition: all 0.3s;
-  border: 2px solid #000000;
-  border-top: 5px solid #000000;
+  border: 3px solid #ffffff;
+  border-top: 6px solid #ffffff;
 }
 
 .card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 16px rgba(255, 255, 255, 0.2);
+  box-shadow: 6px 6px 0px rgba(255, 255, 255, 0.2);
 }
 
 .order-card-header {
@@ -99,27 +100,28 @@
   justify-content: space-between;
   align-items: flex-start;
   padding: 20px;
-  background-color: #f2f2f2;
-  border-bottom: 2px solid #000000; /* Distinct line separating header from body */
+  background-color: #000000;
+  border-bottom: 3px solid #ffffff;
 }
 
-/* Forcing text inside the white card to be black to override any global dark-mode variables */
+/* Forcing text inside the card to be white */
 .card .order-info h3,
 .card .detail .value,
 .card .your-rating {
-  color: #000000 !important;
+  color: #ffffff !important;
 }
 
 .card .order-id,
 .card .detail .label,
 .card .review {
-  color: #444444 !important; /* Dark gray for secondary text */
+  color: #aaaaaa !important; /* Lighter gray for secondary text */
 }
 
 .order-info h3 {
   margin: 0 0 8px 0;
   font-size: 18px;
-  font-weight: bold;
+  font-weight: 900;
+  text-transform: uppercase;
 }
 
 .order-id {
@@ -135,18 +137,19 @@
 .status-badge {
   display: inline-block;
   padding: 6px 12px;
-  border-radius: 20px;
+  border-radius: 4px;
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 900;
   text-transform: uppercase;
+  border: 2px solid;
 }
 
-/* Status colors adjusted to be visible on the white card header */
-.status-pending { background-color: #fff3cd; color: #856404; border: 1px solid #856404; }
-.status-confirmed { background-color: #d4edda; color: #155724; border: 1px solid #155724; }
-.status-in_transit { background-color: #d1ecf1; color: #0c5460; border: 1px solid #0c5460; }
-.status-completed { background-color: #d4edda; color: #155724; border: 1px solid #155724; }
-.status-cancelled { background-color: #f8d7da; color: #721c24; border: 1px solid #721c24; }
+/* Status colors adjusted for Dark Mode */
+.status-pending { background-color: #000000; color: #ffc107; border-color: #ffc107; }
+.status-confirmed { background-color: #000000; color: #4caf50; border-color: #4caf50; }
+.status-in_transit { background-color: #000000; color: #2196f3; border-color: #2196f3; }
+.status-completed { background-color: #000000; color: #4caf50; border-color: #4caf50; }
+.status-cancelled { background-color: #000000; color: #ff4444; border-color: #ff4444; }
 
 .order-details {
   padding: 20px;
@@ -162,22 +165,23 @@
 
 .detail .label {
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
+  text-transform: uppercase;
 }
 
 .detail .value {
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .order-rating {
   padding: 15px 20px;
-  background-color: #f9f9f9;
-  border-top: 1px solid #dddddd;
+  background-color: #111111;
+  border-top: 2px solid #ffffff;
 }
 
 .your-rating {
   display: block;
-  font-weight: 700;
+  font-weight: 800;
   margin-bottom: 8px;
 }
 
@@ -190,7 +194,7 @@
 /* Order Actions */
 .order-actions {
   padding: 15px 20px;
-  border-top: 1px solid #dddddd;
+  border-top: 3px solid #ffffff;
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
@@ -198,27 +202,30 @@
 
 .action-btn {
   flex: 1;
-  padding: 10px 12px;
-  border: none;
+  padding: 12px;
+  background: #000000;
+  border: 2px solid #ffffff;
   border-radius: 6px;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 800;
+  text-transform: uppercase;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.2s ease;
   min-width: 100px;
 }
 
-.btn-primary { background: #000000; color: white; }
-.btn-primary:hover { background: #333333; }
+/* Specific Button Colors */
+.btn-primary { color: #ffffff; }
+.btn-primary:hover { background: #ffffff; color: #000000; }
 
-.btn-danger { background-color: #d32f2f; color: white; }
-.btn-danger:hover { background-color: #b71c1c; }
+.btn-danger { color: #ff4444; border-color: #ff4444; }
+.btn-danger:hover { background: #ff4444; color: #000000; }
 
-.btn-info { background-color: #1976d2; color: white; }
-.btn-info:hover { background-color: #115293; }
+.btn-info { color: #44aaff; border-color: #44aaff; }
+.btn-info:hover { background: #44aaff; color: #000000; }
 
-.btn-secondary { background-color: #e0e0e0; color: #000000; }
-.btn-secondary:hover { background-color: #bdbdbd; }
+.btn-secondary { color: #aaaaaa; border-color: #aaaaaa; }
+.btn-secondary:hover { background: #aaaaaa; color: #000000; }
 
 /* Modals */
 .modal-overlay {
@@ -227,7 +234,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(5px);
   display: flex;
   align-items: center;
@@ -236,9 +243,8 @@
   padding: 20px;
 }
 
-/* Target modal-panel instead of modal-content because that's what React uses */
 .modal-panel {
-  background: #ffffff;
+  background: #000000;
   border-radius: 12px;
   max-width: 500px;
   width: 100%;
@@ -247,8 +253,9 @@
   padding: 30px;
   position: relative;
   animation: slideIn 0.3s ease;
-  border: 4px solid #000000;
-  color: #000000;
+  border: 3px solid #ffffff;
+  box-shadow: 6px 6px 0px rgba(255, 255, 255, 0.2);
+  color: #ffffff;
 }
 
 @keyframes slideIn {
@@ -256,32 +263,35 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* Force text white inside the modal */
 .modal-panel h2, 
 .modal-panel h3, 
 .modal-panel p, 
-.modal-panel label {
-  color: #000000 !important;
+.modal-panel label,
+.modal-panel strong {
+  color: #ffffff !important;
 }
 
 .btn-ghost {
-  background: none;
-  border: 2px solid #000000;
-  color: #000000;
+  background: #000000;
+  border: 2px solid #ffffff;
+  color: #ffffff;
   font-weight: bold;
   cursor: pointer;
   border-radius: 6px;
   padding: 10px;
+  transition: all 0.2s ease;
 }
 
 .btn-ghost:hover {
-  background: #000000;
-  color: #ffffff;
+  background: #ffffff;
+  color: #000000;
 }
 
 .modal-section {
   margin-bottom: 25px;
   padding-bottom: 20px;
-  border-bottom: 1px solid #dddddd;
+  border-bottom: 2px solid #ffffff;
 }
 
 .modal-section:last-of-type {
@@ -290,35 +300,35 @@
 
 .modal-section h3 {
   margin: 0 0 12px 0;
-  font-size: 14px;
+  font-size: 16px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  font-weight: 800;
+  font-weight: 900;
 }
 
 .modal-section p {
   margin: 8px 0;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .big-text {
   font-size: 24px !important;
-  font-weight: bold;
+  font-weight: 900;
 }
 
 .progress-bar {
   width: 100%;
-  height: 8px;
-  background-color: #dddddd;
+  height: 10px;
+  background-color: #222222;
   border-radius: 4px;
   overflow: hidden;
   margin-top: 10px;
-  border: 1px solid #000;
+  border: 2px solid #ffffff;
 }
 
 .progress-fill {
   height: 100%;
-  background: #000000;
+  background: #ffffff;
   transition: width 0.3s ease;
 }
 
@@ -327,19 +337,20 @@
   text-align: center;
   margin-bottom: 25px;
   padding: 20px;
-  background-color: #f2f2f2;
+  background-color: #111111;
   border-radius: 8px;
-  border: 1px solid #000;
+  border: 2px solid #ffffff;
 }
 
 .rating-section label {
   display: block;
   margin-bottom: 15px;
-  font-weight: 700;
+  font-weight: 800;
+  text-transform: uppercase;
 }
 
 .rating-value {
-  font-weight: 700;
+  font-weight: 800;
   margin: 0;
 }
 
@@ -351,25 +362,27 @@
 .review-section label {
   display: block;
   margin-bottom: 10px;
-  font-weight: 700;
+  font-weight: 800;
   font-size: 14px;
+  text-transform: uppercase;
 }
 
 .review-section textarea {
   width: 100%;
   padding: 12px;
-  border: 2px solid #000000;
+  border: 2px solid #ffffff;
   border-radius: 6px;
   font-family: inherit;
   font-size: 14px;
   resize: vertical;
-  color: #000000;
-  background: #ffffff;
+  color: #ffffff;
+  background: #000000;
+  transition: all 0.2s ease;
 }
 
 .review-section textarea:focus {
   outline: none;
-  box-shadow: 4px 4px 0px rgba(0, 0, 0, 1);
+  box-shadow: 4px 4px 0px #ffffff;
 }
 
 /* Responsive */
@@ -383,7 +396,7 @@
   }
 
   .order-status {
-    margin-top: 10px;
+    margin-top: 15px;
     text-align: left;
   }
 
