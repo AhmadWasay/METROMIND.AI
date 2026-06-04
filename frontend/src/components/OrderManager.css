@@ -1,25 +1,17 @@
-/* Order Manager Styles */
+/* Order Manager Styles - Black & White Theme */
 
 .order-manager {
   padding: 20px;
-  background-color: #f5f7fa;
+  background-color: #000000; /* Page background made black */
   min-height: 100vh;
+  color: #ffffff; /* Default text made white */
 }
 
-.order-header {
-  margin-bottom: 30px;
-}
-
-.order-header h2 {
-  color: #333;
-  margin: 0 0 5px 0;
-  font-size: 28px;
-}
-
-.order-subtitle {
-  color: #999;
-  margin: 0;
-  font-size: 14px;
+/* Make sure your React header elements are white on the black background */
+.order-manager .s-label,
+.order-manager .s-h2,
+.order-manager .s-sub {
+  color: #ffffff !important;
 }
 
 .order-error {
@@ -31,35 +23,31 @@
   border-left: 4px solid #c62828;
 }
 
-/* Order Tabs */
-.order-tabs {
+/* Order Tabs (Fixed class name to match React's 'tab-btn') */
+.tab-navigation {
   display: flex;
   gap: 10px;
-  margin-bottom: 25px;
-  flex-wrap: wrap;
 }
 
-.order-tab {
-  background-color: white;
-  border: 2px solid #e0e0e0;
+.tab-btn {
+  background-color: #000000;
+  border: 2px solid #ffffff;
   padding: 10px 20px;
   border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
-  font-weight: 500;
-  color: #666;
+  font-weight: 600;
+  color: #ffffff;
   transition: all 0.3s;
 }
 
-.order-tab:hover {
-  border-color: #667eea;
-  color: #667eea;
+.tab-btn:hover {
+  background-color: #333333;
 }
 
-.order-tab.active {
-  background-color: #667eea;
-  border-color: #667eea;
-  color: white;
+.tab-btn.active {
+  background-color: #ffffff;
+  color: #000000;
 }
 
 /* Loading & Empty States */
@@ -67,9 +55,10 @@
 .empty-orders {
   text-align: center;
   padding: 60px 20px;
-  background-color: white;
+  background-color: #111111;
+  border: 1px dashed #444;
   border-radius: 8px;
-  color: #999;
+  color: #ffffff;
 }
 
 .empty-orders p {
@@ -79,7 +68,7 @@
 
 .empty-subtitle {
   font-size: 14px;
-  color: #bbb;
+  color: #aaaaaa;
 }
 
 /* Orders List */
@@ -89,39 +78,20 @@
   grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
 }
 
-.order-card {
-  background: white;
+/* Cards (Fixed class name to match React's 'card') */
+.card {
+  background: #ffffff; /* White card */
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
   transition: all 0.3s;
-  border-top: 4px solid #ddd;
+  border: 2px solid #000000;
+  border-top: 5px solid #000000;
 }
 
-.order-card:hover {
+.card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-}
-
-.order-card.status-confirmed {
-  border-top-color: #4caf50;
-}
-
-.order-card.status-pending {
-  border-top-color: #ffc107;
-}
-
-.order-card.status-in_transit {
-  border-top-color: #2196f3;
-}
-
-.order-card.status-completed {
-  border-top-color: #8bc34a;
-}
-
-.order-card.status-cancelled {
-  border-top-color: #f44336;
-  opacity: 0.8;
+  box-shadow: 0 8px 16px rgba(255, 255, 255, 0.2);
 }
 
 .order-card-header {
@@ -129,18 +99,30 @@
   justify-content: space-between;
   align-items: flex-start;
   padding: 20px;
-  background-color: #f9f9f9;
-  border-bottom: 1px solid #eee;
+  background-color: #f2f2f2;
+  border-bottom: 2px solid #000000; /* Distinct line separating header from body */
+}
+
+/* Forcing text inside the white card to be black to override any global dark-mode variables */
+.card .order-info h3,
+.card .detail .value,
+.card .your-rating {
+  color: #000000 !important;
+}
+
+.card .order-id,
+.card .detail .label,
+.card .review {
+  color: #444444 !important; /* Dark gray for secondary text */
 }
 
 .order-info h3 {
   margin: 0 0 8px 0;
-  color: #333;
-  font-size: 16px;
+  font-size: 18px;
+  font-weight: bold;
 }
 
 .order-id {
-  color: #999;
   font-size: 12px;
   margin: 0;
   font-family: monospace;
@@ -155,34 +137,16 @@
   padding: 6px 12px;
   border-radius: 20px;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 800;
   text-transform: uppercase;
 }
 
-.status-pending {
-  background-color: #fff3cd;
-  color: #856404;
-}
-
-.status-confirmed {
-  background-color: #d4edda;
-  color: #155724;
-}
-
-.status-in_transit {
-  background-color: #d1ecf1;
-  color: #0c5460;
-}
-
-.status-completed {
-  background-color: #d4edda;
-  color: #155724;
-}
-
-.status-cancelled {
-  background-color: #f8d7da;
-  color: #721c24;
-}
+/* Status colors adjusted to be visible on the white card header */
+.status-pending { background-color: #fff3cd; color: #856404; border: 1px solid #856404; }
+.status-confirmed { background-color: #d4edda; color: #155724; border: 1px solid #155724; }
+.status-in_transit { background-color: #d1ecf1; color: #0c5460; border: 1px solid #0c5460; }
+.status-completed { background-color: #d4edda; color: #155724; border: 1px solid #155724; }
+.status-cancelled { background-color: #f8d7da; color: #721c24; border: 1px solid #721c24; }
 
 .order-details {
   padding: 20px;
@@ -197,31 +161,27 @@
 }
 
 .detail .label {
-  color: #999;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .detail .value {
-  color: #333;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .order-rating {
   padding: 15px 20px;
-  background-color: #f0f7ff;
-  border-top: 1px solid #e0e0e0;
+  background-color: #f9f9f9;
+  border-top: 1px solid #dddddd;
 }
 
 .your-rating {
   display: block;
-  color: #1976d2;
-  font-weight: 600;
+  font-weight: 700;
   margin-bottom: 8px;
 }
 
 .review {
-  color: #666;
   font-size: 13px;
   margin: 0;
   font-style: italic;
@@ -230,7 +190,7 @@
 /* Order Actions */
 .order-actions {
   padding: 15px 20px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid #dddddd;
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
@@ -242,48 +202,23 @@
   border: none;
   border-radius: 6px;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.3s;
   min-width: 100px;
 }
 
-.btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-}
+.btn-primary { background: #000000; color: white; }
+.btn-primary:hover { background: #333333; }
 
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-}
+.btn-danger { background-color: #d32f2f; color: white; }
+.btn-danger:hover { background-color: #b71c1c; }
 
-.btn-danger {
-  background-color: #f44336;
-  color: white;
-}
+.btn-info { background-color: #1976d2; color: white; }
+.btn-info:hover { background-color: #115293; }
 
-.btn-danger:hover {
-  background-color: #d32f2f;
-}
-
-.btn-info {
-  background-color: #2196f3;
-  color: white;
-}
-
-.btn-info:hover {
-  background-color: #1976d2;
-}
-
-.btn-secondary {
-  background-color: #e0e0e0;
-  color: #333;
-}
-
-.btn-secondary:hover {
-  background-color: #bdbdbd;
-}
+.btn-secondary { background-color: #e0e0e0; color: #000000; }
+.btn-secondary:hover { background-color: #bdbdbd; }
 
 /* Modals */
 .modal-overlay {
@@ -292,7 +227,8 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(5px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -300,8 +236,9 @@
   padding: 20px;
 }
 
-.modal-content {
-  background: white;
+/* Target modal-panel instead of modal-content because that's what React uses */
+.modal-panel {
+  background: #ffffff;
   border-radius: 12px;
   max-width: 500px;
   width: 100%;
@@ -310,50 +247,41 @@
   padding: 30px;
   position: relative;
   animation: slideIn 0.3s ease;
+  border: 4px solid #000000;
+  color: #000000;
 }
 
 @keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.close-btn {
-  position: absolute;
-  top: 15px;
-  right: 15px;
+.modal-panel h2, 
+.modal-panel h3, 
+.modal-panel p, 
+.modal-panel label {
+  color: #000000 !important;
+}
+
+.btn-ghost {
   background: none;
-  border: none;
-  font-size: 28px;
+  border: 2px solid #000000;
+  color: #000000;
+  font-weight: bold;
   cursor: pointer;
-  color: #999;
+  border-radius: 6px;
+  padding: 10px;
 }
 
-.close-btn:hover {
-  color: #333;
-}
-
-.modal-content h2 {
-  margin: 0 0 20px 0;
-  color: #333;
-  font-size: 22px;
-}
-
-.rating-subtitle {
-  color: #999;
-  margin: -15px 0 20px 0;
-  font-size: 14px;
+.btn-ghost:hover {
+  background: #000000;
+  color: #ffffff;
 }
 
 .modal-section {
   margin-bottom: 25px;
   padding-bottom: 20px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #dddddd;
 }
 
 .modal-section:last-of-type {
@@ -361,38 +289,36 @@
 }
 
 .modal-section h3 {
-  color: #333;
   margin: 0 0 12px 0;
   font-size: 14px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  font-weight: 600;
+  font-weight: 800;
 }
 
 .modal-section p {
   margin: 8px 0;
-  color: #555;
   font-size: 14px;
 }
 
 .big-text {
   font-size: 24px !important;
   font-weight: bold;
-  color: #667eea;
 }
 
 .progress-bar {
   width: 100%;
   height: 8px;
-  background-color: #eee;
+  background-color: #dddddd;
   border-radius: 4px;
   overflow: hidden;
   margin-top: 10px;
+  border: 1px solid #000;
 }
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #667eea, #764ba2);
+  background: #000000;
   transition: width 0.3s ease;
 }
 
@@ -401,42 +327,19 @@
   text-align: center;
   margin-bottom: 25px;
   padding: 20px;
-  background-color: #f0f7ff;
+  background-color: #f2f2f2;
   border-radius: 8px;
+  border: 1px solid #000;
 }
 
 .rating-section label {
   display: block;
   margin-bottom: 15px;
-  color: #333;
-  font-weight: 600;
-}
-
-.star-rating {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin-bottom: 12px;
-}
-
-.star-btn {
-  background: none;
-  border: none;
-  font-size: 32px;
-  cursor: pointer;
-  opacity: 0.3;
-  transition: all 0.3s;
-}
-
-.star-btn:hover,
-.star-btn.active {
-  opacity: 1;
-  transform: scale(1.2);
+  font-weight: 700;
 }
 
 .rating-value {
-  color: #667eea;
-  font-weight: 600;
+  font-weight: 700;
   margin: 0;
 }
 
@@ -448,60 +351,25 @@
 .review-section label {
   display: block;
   margin-bottom: 10px;
-  color: #333;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 14px;
 }
 
 .review-section textarea {
   width: 100%;
   padding: 12px;
-  border: 1px solid #ddd;
+  border: 2px solid #000000;
   border-radius: 6px;
   font-family: inherit;
-  font-size: 13px;
+  font-size: 14px;
   resize: vertical;
-  transition: border-color 0.3s;
+  color: #000000;
+  background: #ffffff;
 }
 
 .review-section textarea:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-/* Modal Actions */
-.modal-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 25px;
-}
-
-.modal-actions button {
-  flex: 1;
-  padding: 12px;
-  border: none;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.modal-close-btn {
-  width: 100%;
-  padding: 12px;
-  background-color: #e0e0e0;
-  color: #333;
-  border: none;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  margin-top: 15px;
-}
-
-.modal-close-btn:hover {
-  background-color: #bdbdbd;
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 1);
 }
 
 /* Responsive */
@@ -527,7 +395,7 @@
     min-width: unset;
   }
 
-  .modal-content {
+  .modal-panel {
     padding: 20px;
   }
 }

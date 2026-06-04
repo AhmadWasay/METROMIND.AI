@@ -99,9 +99,6 @@ class TransitGraph:
         # 4. Generate Logical Transfers
         self._add_logical_transfers()
         
-        # 5. Add short-distance walking connections
-        self._add_feeder_walking_edges()
-
     def _edge_exists_with_type(self, u, v, e_type):
         """Helper for MultiDiGraph to prevent duplicate transfer/walk edges"""
         if not self.graph.has_edge(u, v):
@@ -133,28 +130,6 @@ class TransitGraph:
                             line=f"Transfer: {data_b.get('line', 'Bus')} ↔ {data_a.get('line', 'Bus')}"
                         )
 
-    def _add_feeder_walking_edges(self):
-        nodes = list(self.graph.nodes(data=True))
-        max_walk_km = 0.3 
-
-        for i, (code_a, data_a) in enumerate(nodes):
-            for code_b, data_b in nodes[i + 1:]:
-                if self.graph.has_edge(code_a, code_b):
-                    continue
-
-                distance = self._calculate_distance(
-                    data_a['lat'], data_a['lng'], data_b['lat'], data_b['lng']
-                )
-                
-                if distance <= max_walk_km:
-                    walking_time = max(1, self._estimate_walking_time(distance))
-                    for src, dst in [(code_a, code_b), (code_b, code_a)]:
-                        self.graph.add_edge(
-                            src, dst,
-                            weight=walking_time, distance=distance,
-                            type='walk', line='walk'
-                        )
-
     def _find_stop(self, code):
         for station in METRO_STATIONS:
             if station['code'] == code: return station
@@ -171,10 +146,6 @@ class TransitGraph:
         a = math.sin(delta_lat/2)**2 + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(delta_lng/2)**2
         c = 2 * math.asin(math.sqrt(a))
         return R * c
-    
-    def _estimate_walking_time(self, distance_km):
-        if distance_km <= 0.05: return 0
-        return (distance_km * 60) / 5.04 
     
     def find_shortest_path(self, source, target, optimization="time"):
         try:
@@ -193,10 +164,10 @@ class TransitGraph:
             
             segments = []
             total_fare = 0
-            metro_used = False
+            current_metro_line = None
             current_bus_route = None
             active_line = None
-            
+
             for i in range(len(path) - 1):
                 curr_code, next_code = path[i], path[i + 1]
                 
@@ -227,9 +198,10 @@ class TransitGraph:
                 time = edge_data.get('weight', 0)
                 
                 if e_type == 'metro':
-                    if not metro_used:
+                    line = edge_data.get('line')
+                    if current_metro_line != line:
                         total_fare += edge_data.get('fare', 50)
-                        metro_used = True
+                        current_metro_line = line
                     current_bus_route = None
                     segments.append(self._format_segment(e_type, active_line, curr_stop, next_stop, dist, time))
                     
@@ -240,16 +212,10 @@ class TransitGraph:
                         current_bus_route = route
                     segments.append(self._format_segment(e_type, active_line, curr_stop, next_stop, dist, time))
                     
-                elif e_type in ['walk', 'transfer']:
-                    desc = 'Walk' if e_type == 'walk' else active_line
+                elif e_type == 'transfer':
+                    desc = active_line
                     segments.append(self._format_segment(e_type, desc, curr_stop, next_stop, dist, time))
 
-            walking_segments = [s for s in segments if s['type'] == 'walk']
-            intermediate_walking_km = sum(s['distance_km'] for s in walking_segments)
-            
-            endpoint_walking_km = 0.6 if len(path) > 0 else 0
-            endpoint_walking_time = int(self._estimate_walking_time(endpoint_walking_km))
-            
             # Transfer math is now accurate because Line Affinity prevents bouncing
             transit_lines = [s['line'] for s in segments if s['type'] in ['metro', 'bus']]
             transfer_count = sum(1 for i in range(1, len(transit_lines)) if transit_lines[i] != transit_lines[i-1])
@@ -258,12 +224,12 @@ class TransitGraph:
                 'status': 'success',
                 'packages': [{
                     'name': '⚡ Recommended Route',
-                    'description': f'Journey with {transfer_count} transfers, {round(intermediate_walking_km + endpoint_walking_km, 2)}km walking',
+                    'description': f'Journey with {transfer_count} transfers',
                     'path': [self._find_stop(c)['name'] for c in path],
                     'journey_segments': segments,
                     'transfers': transfer_count,
                     'estimated_cost': total_fare,
-                    'estimated_time_minutes': int(total_time + endpoint_walking_time)
+                    'estimated_time_minutes': int(total_time)
                 }]
             }
             
@@ -278,7 +244,7 @@ class TransitGraph:
             'to': next_stop['name'],
             'distance_km': round(dist, 2),
             'time_mins': int(time),
-            'description': f'{line_desc}' if segment_type != 'walk' else 'Walk / Transfer'
+            'description': f'{line_desc}'
         }
 
     def _find_location_code(self, location_name):

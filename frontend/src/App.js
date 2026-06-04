@@ -6,7 +6,6 @@ import SearchBar from './components/SearchBar';
 import ItineraryCard from './components/ItineraryCard';
 import AuthModal from './components/AuthModal';
 import OrderManager from './components/OrderManager';
-import AdminDashboard from './components/AdminDashboard';
 import './styles/design-system.css';
 
 function App() {
@@ -193,7 +192,6 @@ function App() {
           {userId && (
             <>
               <button className={`nav-link ${currentPage === 'orders' ? 'active' : ''}`} onClick={() => setCurrentPage('orders')}>My Bookings</button>
-              <button className={`nav-link ${currentPage === 'admin' ? 'active' : ''}`} onClick={() => setCurrentPage('admin')}>Admin</button>
             </>
           )}
         </div>
@@ -209,14 +207,14 @@ function App() {
       <main className="main-content">
         {currentPage === 'landing' && (
           <div className="landing-view">
-            <section className="section" style={{ background: 'var(--color-ink)', padding: '160px 24px 120px' }}>
+            <section className="section" style={{ background: 'var(--color-ink)', padding: '200px 24px 120px', minHeight: '80vh' }}>
               <div className="section-inner" style={{ maxWidth: '1160px', margin: '0 auto', textAlign: 'center' }}>
                 <div className="s-label" style={{ animation: 'fade-up 0.8s 0s both cubic-bezier(0.16,1,0.3,1)' }}>IIUI WEB ENGINEERING 2026</div>
                 <h1 style={{ fontSize: 'clamp(48px, 8vw, 96px)', fontFamily: 'Syne, sans-serif', margin: '24px 0', lineHeight: 1.1, animation: 'fade-up 0.8s 0.1s both cubic-bezier(0.16,1,0.3,1)' }}>
                   Commute <span style={{ color: 'var(--color-accent)' }}>Smarter</span>,<br/>Not Harder.
                 </h1>
                 <p className="s-sub" style={{ maxWidth: '600px', margin: '0 auto 48px', fontSize: '19px', animation: 'fade-up 0.8s 0.2s both cubic-bezier(0.16,1,0.3,1)' }}>
-                  MetroMind AI optimizes your transit paths across Islamabad & Rawalpindi. Find the fastest routes, book tickets, and track your journey in real-time.
+                  MetroMind AI optimizes your transit paths across Islamabad & Rawalpindi. Find the fastest routes, book tickets, and enjoy your journey.
                 </p>
                 <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', animation: 'fade-up 0.8s 0.3s both cubic-bezier(0.16,1,0.3,1)' }}>
                   <button className="btn-primary" onClick={() => setCurrentPage('planner')}>Plan Your Trip →</button>
@@ -243,9 +241,9 @@ function App() {
                     <p style={{ color: 'var(--color-muted)', fontSize: '14px', lineHeight: 1.6 }}>Select your preferred itinerary and book your trip. We manage inventory to ensure you have a guaranteed spot.</p>
                   </div>
                   <div className="card" style={{ animation: 'fade-up 0.8s 0.3s both' }}>
-                    <div style={{ fontSize: '32px', marginBottom: '16px' }}>📍</div>
-                    <h3 style={{ fontSize: '22px', fontFamily: 'Syne, sans-serif', marginBottom: '12px', color: 'var(--color-white)' }}>3. Track</h3>
-                    <p style={{ color: 'var(--color-muted)', fontSize: '14px', lineHeight: 1.6 }}>Follow your journey in real-time with our live tracking system and receive SMS or email status updates.</p>
+                    <div style={{ fontSize: '32px', marginBottom: '16px' }}>⭐</div>
+                    <h3 style={{ fontSize: '22px', fontFamily: 'Syne, sans-serif', marginBottom: '12px', color: 'var(--color-white)' }}>3. Ride & Rate</h3>
+                    <p style={{ color: 'var(--color-muted)', fontSize: '14px', lineHeight: 1.6 }}>Experience your journey smoothly with guaranteed seat allocation. Once completed, share your feedback to help us improve.</p>
                   </div>
                 </div>
               </div>
@@ -253,14 +251,8 @@ function App() {
           </div>
         )}
 
-        {currentPage === 'admin' && (
-          <section className="section" style={{ paddingTop: '120px' }}>
-            <div className="section-inner"><AdminDashboard /></div>
-          </section>
-        )}
-
         {currentPage === 'orders' && userId && (
-          <section className="section" style={{ paddingTop: '120px' }}>
+          <section className="section" style={{ paddingTop: '180px', paddingBottom: '60px' }}>
             <div className="section-inner">
               <OrderManager 
                 userId={userId} 
@@ -277,7 +269,7 @@ function App() {
 
         {/* Section 5.2: Trip Planner Page (Split Panel) */}
         {currentPage === 'planner' && (
-          <section className="section-planner">
+          <section className="section-planner" style={{ paddingTop: '180px', paddingBottom: '80px' }}>
             <div className="section-inner">
               <div className="s-label">TRIP PLANNER</div>
               <h2 className="s-h2">Find Your Best Route</h2>

@@ -257,7 +257,3 @@ def send_trip_confirmation_sms(phone, order_id, trip_date):
 def send_trip_status_sms(phone, order_id, status):
     message = f"MetroMind AI: Update for trip #{order_id}. Status: {status}. Track in app."
     return send_sms(phone, message)
-
-def send_trip_alert_sms(phone, message):
-    message_prefix = "MetroMind AI Alert: "
-    return send_sms(phone, message_prefix + message)

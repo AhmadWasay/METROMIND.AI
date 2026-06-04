@@ -88,18 +88,6 @@ def init_db():
         )
     ''')
 
-    # Admin Logs table
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS admin_logs (
-            log_id TEXT PRIMARY KEY,
-            admin_id TEXT, -- Could be user_id of an admin
-            action TEXT NOT NULL,
-            timestamp TEXT DEFAULT CURRENT_TIMESTAMP,
-            details TEXT,
-            FOREIGN KEY (admin_id) REFERENCES users(user_id)
-        )
-    ''')
-    
     conn.commit()
     conn.close()
 
@@ -449,62 +437,6 @@ def update_order_status(order_id, status):
     except Exception as e:
         conn.rollback()
         return {"status": "error", "message": str(e)}
-    finally:
-        conn.close()
-
-# --- Admin Functions ---
-def get_admin_dashboard_stats():
-    conn = get_db()
-    c = conn.cursor()
-    try:
-        c.execute('SELECT COUNT(*) FROM users')
-        total_users = c.fetchone()[0]
-        
-        c.execute('SELECT COUNT(*) FROM orders WHERE status = "completed"')
-        completed_orders = c.fetchone()[0]
-        
-        c.execute('SELECT SUM(booked_seats) FROM transit_capacity')
-        total_booked_seats = c.fetchone()[0] or 0
-        
-        # Example network capacity usage (simplified)
-        network_capacity_usage = {
-            'Red_Line': '78%',
-            'Green_Line': '65%',
-            'Blue_Line': '82%'
-        }
-        
-        return {
-            "total_users": total_users,
-            "completed_orders": completed_orders,
-            "total_booked_seats": total_booked_seats,
-            "network_capacity_usage": network_capacity_usage
-        }
-    finally:
-        conn.close()
-
-def get_top_routes(limit=5):
-    conn = get_db()
-    c = conn.cursor()
-    try:
-        # This is a simplified approach. A real implementation would parse trip_plan JSON
-        # to extract individual route segments and count them.
-        c.execute('''
-            SELECT source, destination, COUNT(*) as count
-            FROM orders
-            GROUP BY source, destination
-            ORDER BY count DESC
-            LIMIT ?
-        ''', (limit,))
-        return [dict(row) for row in c.fetchall()]
-    finally:
-        conn.close()
-
-def get_pending_notifications():
-    conn = get_db()
-    c = conn.cursor()
-    try:
-        c.execute('SELECT * FROM notifications WHERE status = "pending" ORDER BY created_at ASC')
-        return [dict(row) for row in c.fetchall()]
     finally:
         conn.close()
 

@@ -10,7 +10,6 @@ Your MetroMind AI project now includes a **full-featured e-commerce ordering sys
 - ✅ Order confirmation emails
 - ✅ Real-time order status tracking
 - ✅ Order cancellation & ratings
-- ✅ Admin dashboard (full management)
 - ✅ SMS alerts for premium users
 - ✅ Seat/capacity management
 
@@ -122,7 +121,6 @@ metromind-ai/
 │   ├── api_extended.py         (NEW - Booking API)
 │   ├── models.py              (NEW - Database)
 │   ├── notifications.py       (NEW - Email/SMS)
-│   ├── setup.py               (NEW - Setup script)
 │   ├── requirements.txt        (UPDATED)
 │   ├── .env                   (Configuration)
 │   └── .env.example           (Template)
@@ -130,12 +128,6 @@ metromind-ai/
 ├── frontend/
 │   ├── src/
 │   │   ├── App.js             (UPDATED - With auth)
-│   │   ├── components/
-│   │   │   ├── AdminDashboard.* (NEW)
-│   │   │   ├── AuthModal.*     (NEW)
-│   │   │   ├── OrderManager.*  (NEW)
-│   │   │   └── ItineraryCard.js (UPDATED)
-│   │   └── ...
 │   ├── .env.local            (Frontend config)
 │   └── package.json
 │

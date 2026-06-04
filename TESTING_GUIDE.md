@@ -74,7 +74,7 @@ Terminal 2: Navigate to frontend/
 - ✅ "Account created successfully!" message shown
 - ✅ Modal closes automatically
 - ✅ User is automatically logged in
-- ✅ Header shows "📦 My Bookings" and "🎛️ Admin" buttons
+- ✅ Header shows "📦 My Bookings" button
 
 **Backend Verification:**
 ```bash
@@ -104,7 +104,7 @@ sqlite3 backend/metromind.db "SELECT * FROM users WHERE email='testuser@example.
 **Expected Results:**
 - ✅ Login successful message shown
 - ✅ Modal closes
-- ✅ Header shows "📦 My Bookings" and "🎛️ Admin"
+- ✅ Header shows "📦 My Bookings"
 - ✅ User ID saved in browser localStorage
 
 **Browser DevTools Check:**

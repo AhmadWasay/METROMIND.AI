@@ -26,11 +26,6 @@ function ItineraryCard({ itineraryPackage, isPrimary, loading, onBook, showBookB
           </div>
 
           <div className="info-box">
-            <span className="label">🚶 Walking</span>
-            <span className="value">{itineraryPackage.walking_distance_km || 0} km</span>
-          </div>
-
-          <div className="info-box">
             <span className="label">🔄 Transfers</span>
             <span className="value">{itineraryPackage.transfers || 0}</span>
           </div>
@@ -44,10 +39,6 @@ function ItineraryCard({ itineraryPackage, isPrimary, loading, onBook, showBookB
               <div className="breakdown-item">
                 <span>🚌 Transit Time:</span>
                 <span className="value">{itineraryPackage.transit_time_mins} mins</span>
-              </div>
-              <div className="breakdown-item">
-                <span>🚶 Walking Time:</span>
-                <span className="value">{itineraryPackage.walking_time_mins} mins</span>
               </div>
             </div>
           </div>
@@ -72,9 +63,6 @@ function ItineraryCard({ itineraryPackage, isPrimary, loading, onBook, showBookB
                       <span className="time">⏱️ {segment.time_mins} mins</span>
                       {segment.distance_km > 0 && (
                         <span className="distance">📏 {segment.distance_km} km</span>
-                      )}
-                      {segment.walking_time_mins > 0 && (
-                        <span className="walking">🚶 {segment.walking_time_mins} mins walk</span>
                       )}
                     </div>
                   </div>

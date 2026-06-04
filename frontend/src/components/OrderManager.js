@@ -85,15 +85,15 @@ function OrderManager({ userId, onReuseRoute }) {
     }
   };
 
-  const handleCheckStatus = async (orderId) => {
+  const handleViewDetails = async (orderId) => {
     try {
       const response = await axios.get(
-        `${API_BASE}/api/orders/${orderId}/status`,
+        `${API_BASE}/api/orders/${orderId}`,
         { headers: { 'X-User-ID': userId } }
       );
-      setSelectedOrder({ ...response.data, order_id: orderId });
+      setSelectedOrder(response.data.order);
     } catch (err) {
-      alert('Failed to fetch status: ' + err.response?.data?.error);
+      alert('Failed to fetch details: ' + err.response?.data?.error);
     }
   };
 
@@ -219,15 +219,6 @@ function OrderManager({ userId, onReuseRoute }) {
                   </button>
                 )}
                 
-                {order.status === 'in_transit' && (
-                  <button 
-                    className="action-btn btn-primary"
-                    onClick={() => handleCheckStatus(order.order_id)}
-                  >
-                    📍 Track Live
-                  </button>
-                )}
-
                 {order.status === 'completed' && !order.rating && (
                   <button 
                     className="action-btn btn-info"
@@ -251,7 +242,7 @@ function OrderManager({ userId, onReuseRoute }) {
 
                 <button 
                   className="action-btn btn-secondary"
-                  onClick={() => handleCheckStatus(order.order_id)}
+                  onClick={() => handleViewDetails(order.order_id)}
                 >
                   📋 View Details
                 </button>
@@ -264,41 +255,42 @@ function OrderManager({ userId, onReuseRoute }) {
       {/* Order Detail Modal */}
       {selectedOrder && !showRatingModal && (
         <div className="modal-overlay" onClick={() => setSelectedOrder(null)}>
-          <div className="modal-panel" onClick={(e) => e.stopPropagation()}>
-            <button className="btn-ghost" style={{ position: 'absolute', top: '16px', right: '16px', padding: '8px 12px' }} onClick={() => setSelectedOrder(null)}>✕</button>
+          <div className="modal-panel" onClick={(e) => e.stopPropagation()} style={{ backgroundColor: '#0a0a0a', color: '#ffffff', border: '1px solid #333' }}>
+            <button className="btn-ghost" style={{ position: 'absolute', top: '16px', right: '16px', padding: '8px 12px', color: '#fff' }} onClick={() => setSelectedOrder(null)}>✕</button>
             
-            <h2 className="s-h2" style={{ fontSize: '28px' }}>Trip Details</h2>
+            <h2 className="s-h2" style={{ fontSize: '28px', color: '#ffffff' }}>Trip Details</h2>
             
             <div className="modal-section" style={{ marginBottom: '16px' }}>
-              <h3>Journey Route</h3>
-              <p><strong>From:</strong> {selectedOrder.source}</p>
-              <p><strong>To:</strong> {selectedOrder.destination}</p>
+              <h3 style={{ color: '#aaa', fontSize: '18px', marginBottom: '8px' }}>Journey Summary</h3>
+              <p style={{ margin: '4px 0' }}><strong>From:</strong> {selectedOrder.source}</p>
+              <p style={{ margin: '4px 0' }}><strong>To:</strong> {selectedOrder.destination}</p>
+              <p style={{ margin: '4px 0' }}><strong>Status:</strong> {selectedOrder.status ? selectedOrder.status.toUpperCase() : 'N/A'}</p>
+              <p style={{ margin: '4px 0' }}><strong>Fare:</strong> Rs. {selectedOrder.total_fare}</p>
+              <p style={{ margin: '4px 0' }}><strong>Date:</strong> {selectedOrder.trip_date}</p>
             </div>
 
-            <div className="modal-section" style={{ marginBottom: '16px' }}>
-              <h3>Current Status</h3>
-              <p><strong>Status:</strong> {selectedOrder.current_status || selectedOrder.status}</p>
-              <p><strong>Progress:</strong> {selectedOrder.progress_percentage}%</p>
-              <div className="progress-bar" style={{ height: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', marginTop: '8px', overflow: 'hidden' }}>
-                <div className="progress-fill" style={{ height: '100%', background: 'var(--color-accent)', width: `${selectedOrder.progress_percentage}%`, transition: 'width 0.5s' }}></div>
-              </div>
-            </div>
+            {(() => {
+              let plan = selectedOrder.trip_plan;
+              if (typeof plan === 'string') {
+                try { plan = JSON.parse(plan); } catch(e) {}
+              }
+              const path = plan?.path || [];
+              return path.length > 0 ? (
+                <div className="modal-section" style={{ marginBottom: '24px', padding: '16px', backgroundColor: '#1a1a1a', borderRadius: '8px', border: '1px solid #333' }}>
+                  <h3 style={{ marginBottom: '12px', color: 'var(--color-accent)', fontSize: '18px' }}>Stations to Travel</h3>
+                  <ul style={{ listStyleType: 'none', padding: 0, margin: 0 }}>
+                    {path.map((station, idx) => (
+                      <li key={idx} style={{ padding: '8px 0', borderBottom: idx !== path.length - 1 ? '1px solid #2a2a2a' : 'none', color: '#eaeaea', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <span style={{ fontSize: '12px' }}>{idx === 0 ? '🟢' : idx === path.length - 1 ? '🔴' : '⚪'}</span>
+                        {station}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null;
+            })()}
 
-            {selectedOrder.current_location && (
-              <div className="modal-section" style={{ marginBottom: '16px' }}>
-                <h3>Current Location</h3>
-                <p><strong>Location:</strong> {selectedOrder.current_location.description}</p>
-                <p><strong>Coordinates:</strong> {selectedOrder.current_location.lat}, {selectedOrder.current_location.lng}</p>
-              </div>
-            )}
-
-            <div className="modal-section" style={{ marginBottom: '24px' }}>
-              <h3>Estimated Arrival</h3>
-              <p className="big-text" style={{ fontSize: '24px', fontFamily: 'Syne, sans-serif', color: 'var(--color-accent2)', margin: '8px 0' }}>{selectedOrder.estimated_arrival}</p>
-              <p>Next Milestone: {selectedOrder.next_milestone || 'On Track'}</p>
-            </div>
-
-            <button className="btn-ghost" style={{ width: '100%' }} onClick={() => setSelectedOrder(null)}>
+            <button className="btn-primary" style={{ width: '100%', marginTop: '16px' }} onClick={() => setSelectedOrder(null)}>
               Close
             </button>
           </div>

@@ -1,5 +1,5 @@
 """
-Extended MetroMind API - User Authentication, Booking, Admin, and Notifications
+Extended MetroMind API - User Authentication, Booking, and Notifications
 This file extends the main.py with business process endpoints
 """
 from flask import request, jsonify, Blueprint
@@ -393,6 +393,31 @@ def start_order_endpoint(user_id, order_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@api.route("/api/orders/<order_id>/complete", methods=["POST"])
+@token_required
+def complete_order_endpoint(user_id, order_id):
+    """End a trip manually and mark as completed"""
+    try:
+        order = models.get_order(order_id)
+        if not order:
+            return jsonify({"error": "Order not found"}), 404
+        
+        if order['user_id'] != user_id:
+            return jsonify({"error": "Unauthorized"}), 403
+        
+        result = models.update_order_status(order_id, 'completed')
+        
+        models.queue_notification(
+            order_id,
+            user_id,
+            'trip_completed',
+            'email',
+            f"Your trip order {order_id} has been marked as completed. Thank you for riding with us!"
+        )
+        return jsonify({"status": "success", "message": "Trip ended and saved to history."}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @api.route("/api/orders/<order_id>/rate", methods=["POST"])
 @token_required
 def rate_order_endpoint(user_id, order_id):
@@ -442,6 +467,10 @@ def get_status(user_id, order_id):
         return jsonify({
             "status": "success",
             "order_id": order_id,
+            "source": order['source'],
+            "destination": order['destination'],
+            "from": order['source'],
+            "to": order['destination'],
             "current_status": order['status'],
             "trip_status": statuses[min(3, len(statuses)-1)],
             "progress_percentage": 60,
@@ -452,165 +481,6 @@ def get_status(user_id, order_id):
                 "lng": 73.1756,
                 "description": "On Transit Route"
             }
-        }), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-@api.route("/api/orders/<order_id>/update-status", methods=["PUT"])
-def update_order_status_endpoint(order_id):
-    """Admin endpoint to update order status"""
-    try:
-        # Check admin authentication
-        admin_token = request.headers.get('X-Admin-Token')
-        if admin_token != 'admin_secret':  # In production, use proper JWT
-            return jsonify({"error": "Admin authorization required"}), 403
-        
-        data = request.get_json()
-        status = data.get('status')
-        message = data.get('message', '')
-        
-        if status not in ['pending', 'confirmed', 'in_transit', 'completed', 'cancelled']:
-            return jsonify({"error": "Invalid status"}), 400
-        
-        # Update status
-        result = models.update_order_status(order_id, status)
-        
-        # Send email notification
-        order = models.get_order(order_id)
-        if order: # This function was not defined in the previous models.py, but is now in the new one.
-            user = models.get_user(order['user_id'])
-            notifications.send_status_update_email( # Explicitly use notifications.send_status_update_email
-                user['email'],
-                user['full_name'],
-                order_id,
-                status,
-                message or f"Your trip status is now: {status}"
-            )
-        
-        return jsonify(result), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-# =================== ADMIN DASHBOARD ENDPOINTS ===================
-
-@api.route("/api/admin/dashboard", methods=["GET"])
-def admin_dashboard():
-    """Admin dashboard with statistics"""
-    try:
-        admin_token = request.headers.get('X-Admin-Token')
-        if admin_token != 'admin_secret':
-            return jsonify({"error": "Admin authorization required"}), 403
-        
-        stats = models.get_admin_dashboard_stats() # This function was not defined in the previous models.py, but is now in the new one.
-        top_routes = models.get_top_routes() # This function was not defined in the previous models.py, but is now in the new one.
-        
-        return jsonify({
-            "status": "success",
-            "statistics": stats,
-            "top_routes": top_routes,
-            "timestamp": datetime.now().isoformat()
-        }), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-@api.route("/api/admin/orders", methods=["GET"])
-def admin_view_all_orders():
-    """Admin endpoint to view all orders"""
-    try:
-        admin_token = request.headers.get('X-Admin-Token')
-        if admin_token != 'admin_secret':
-            return jsonify({"error": "Admin authorization required"}), 403
-        
-        conn = models.get_db() # Use get_db from models
-        c = conn.cursor()
-        
-        status_filter = request.args.get('status')
-        if status_filter:
-            c.execute('SELECT * FROM orders WHERE status = ? ORDER BY booking_time DESC', (status_filter,))
-        else:
-            c.execute('SELECT * FROM orders ORDER BY booking_time DESC')
-        
-        orders = [dict(row) for row in c.fetchall()]
-        conn.close()
-        
-        return jsonify({
-            "status": "success",
-            "orders": orders,
-            "count": len(orders)
-        }), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-@api.route("/api/admin/users", methods=["GET"])
-def admin_view_users():
-    """Admin endpoint to view all users"""
-    try:
-        admin_token = request.headers.get('X-Admin-Token')
-        if admin_token != 'admin_secret':
-            return jsonify({"error": "Admin authorization required"}), 403
-        
-        conn = models.get_db() # Use get_db from models
-        c = conn.cursor()
-        c.execute('''SELECT user_id, email, full_name, phone, is_premium, created_at, last_login 
-                     FROM users ORDER BY created_at DESC''')
-        
-        users = [dict(row) for row in c.fetchall()]
-        conn.close()
-        
-        return jsonify({
-            "status": "success",
-            "users": users,
-            "count": len(users)
-        }), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-@api.route("/api/admin/notifications", methods=["GET"])
-def admin_view_notifications():
-    """Admin endpoint to view pending notifications"""
-    try:
-        admin_token = request.headers.get('X-Admin-Token')
-        if admin_token != 'admin_secret':
-            return jsonify({"error": "Admin authorization required"}), 403
-        
-        notifications = models.get_pending_notifications() # This function was not defined in the previous models.py, but is now in the new one.
-        
-        return jsonify({
-            "status": "success",
-            "pending_notifications": notifications,
-            "count": len(notifications)
-        }), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-@api.route("/api/admin/send-alerts", methods=["POST"])
-def admin_send_alerts():
-    """Admin endpoint to send manual alerts to users"""
-    try:
-        admin_token = request.headers.get('X-Admin-Token')
-        if admin_token != 'admin_secret':
-            return jsonify({"error": "Admin authorization required"}), 403
-        
-        data = request.get_json()
-        user_ids = data.get('user_ids', [])
-        message = data.get('message', '')
-        alert_type = data.get('type', 'info')  # info, warning, alert
-        
-        if not message:
-            return jsonify({"error": "Message required"}), 400
-        
-        sent_count = 0
-        for user_id in user_ids:
-            user = models.get_user(user_id)
-            if user and user.get('is_premium') and user.get('phone'):
-                result = notifications.send_trip_alert_sms(user['phone'], message) # Explicitly use notifications.send_trip_alert_sms
-                if result['status'] == 'success':
-                    sent_count += 1
-        
-        return jsonify({
-            "status": "success",
-            "message": "Alerts sent",
-            "sent_count": sent_count
         }), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500

@@ -62,8 +62,6 @@ try:
     print("✨ Backend Setup Complete!")
     print("=" * 60)
     
-    print("\n🔧 Admin Token: admin_secret (change in .env for production)")
-    
     print("\n🚀 To start the backend server:")
     print("   python main.py")
     print("\n📚 API will be available at: http://localhost:5000")
